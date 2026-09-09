@@ -36,3 +36,12 @@ Característica: Visualización de la ficha completa de un ejercicio
 
 **Supuestos / preguntas abiertas**
 - Se asume que un ejercicio en estado "borrador" o "archivado" no es accesible por URL directa para un usuario no administrador (comportamiento consistente con RF_024 y RF_049), aunque el requerimiento no lo indica explícitamente para este caso puntual.
+
+**Pantallas para mockup**
+
+| # | Pantalla | Elementos mínimos |
+|---|---|---|
+| 04 | Ficha completa del ejercicio | Video o imagen destacada arriba; secciones: objetivo, estructuras intervenidas, indicaciones/contraindicaciones, posición del paciente y del fisioterapeuta, ejecución paso a paso, comandos verbales, dosificación, progresión, errores comunes; galería de imágenes al final |
+
+Prompt sugerido (Lovable / v0.dev):
+> Página de detalle de un ejercicio clínico de fisioterapia, con reproductor de video destacado arriba y secciones colapsables debajo: objetivo terapéutico, estructuras intervenidas, indicaciones y contraindicaciones, posición del paciente, posición del fisioterapeuta, pasos de ejecución del movimiento, comandos verbales, dosificación (series/repeticiones/descanso), progresión y errores comunes. Cierra con una galería de imágenes.

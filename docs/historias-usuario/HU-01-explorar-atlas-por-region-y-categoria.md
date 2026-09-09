@@ -46,3 +46,14 @@ Característica: Exploración del atlas por región anatómica y categoría tera
 - El requerimiento no especifica el mensaje exacto para el caso "sin ejercicios disponibles"; se asumió un mensaje genérico de estado vacío.
 - Se asume que las 9 categorías terapéuticas son las mismas para todas las regiones anatómicas (el requerimiento no indica que varíen por región).
 - RF_022 y RF_023 (una ficha pertenece a una única región y una única categoría) no se documentan como historias propias: son reglas de integridad de datos que ya quedan cubiertas como precondición de esta historia (el listado que se muestra depende de esa relación 1—N) y se validan formalmente en la historia de creación de la ficha (módulo "Gestión de la ficha de ejercicio").
+
+**Pantallas para mockup**
+
+| # | Pantalla | Elementos mínimos |
+|---|---|---|
+| 01 | Principal — selector de región | Cuerpo humano ilustrado con toggle vista anterior/posterior; regiones anatómicas resaltables/clicables; barra de búsqueda visible (ver HU-03) |
+| 02 | Menú de categorías terapéuticas | Las 9 categorías como tarjetas o chips; breadcrumb con la región ya elegida; botón para volver a la selección de región |
+| 03 | Listado de ejercicios | Grid o lista de nombres de ejercicios; breadcrumb región > categoría; estado vacío ("no hay ejercicios disponibles") |
+
+Prompt sugerido (Lovable / v0.dev):
+> Pantalla principal de un atlas de ejercicios de fisioterapia: silueta de cuerpo humano interactiva con toggle anterior/posterior, regiones resaltables al pasar el mouse y barra de búsqueda superior. Al seleccionar una región, se abre un panel con 9 categorías terapéuticas en tarjetas (breadcrumb "Región > Categorías"). Al elegir una categoría, se muestra un listado en grid con los nombres de los ejercicios disponibles, con estado vacío ilustrado cuando no hay resultados.
