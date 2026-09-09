@@ -95,6 +95,19 @@ criterio de aceptación de HU-31, que es la métrica que consume esos datos.
 | [HU-33](HU-33-metrica-de-usuarios-activos-por-rol.md) | Ver la métrica de usuarios activos por rol | RF_058 | Entender la composición real de la audiencia |
 | [HU-34](HU-34-metrica-de-tiempo-promedio-de-uso.md) | Ver la métrica de tiempo promedio de uso por sesión | RF_059 | Mide la profundidad de uso, no solo la cantidad de visitas |
 
-## Módulos pendientes
+## Fuera de alcance: requerimientos no funcionales
 
-- Módulo 7 — Requerimientos no funcionales (RNF_001–RNF_005)
+Los RNF (RNF_001–RNF_005: autenticación por tokens, protección de credenciales,
+compatibilidad multidispositivo, disponibilidad sin conexión, soporte de usuarios
+concurrentes) no se convierten en historias de usuario. Un RNF describe un atributo
+de calidad transversal del sistema (seguridad, rendimiento, disponibilidad), no la
+interacción de un actor con el sistema para obtener un beneficio puntual, así que no
+encaja en el formato Como/Quiero/Para ni se valida naturalmente contra INVEST. Se
+gestionan aparte, por ejemplo como una lista de restricciones o criterios de
+"definición de terminado" que aplican de forma transversal a las historias de este
+backlog (en particular RNF_004 afecta a HU-16, ver la decisión de alcance arriba).
+
+## Backlog completo
+
+Los 59 RF del documento de requerimientos quedaron cubiertos en 34 historias de
+usuario (HU-01 a HU-34), repartidas en los 6 módulos de arriba.
