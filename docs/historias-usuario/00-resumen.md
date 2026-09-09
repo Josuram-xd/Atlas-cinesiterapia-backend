@@ -80,7 +80,21 @@ pertenecen (ver "Supuestos" de cada HU).
 | [HU-28](HU-28-eliminar-cualquier-comentario.md) | Eliminar cualquier comentario como administrador | RF_042 | Control total del administrador para mantener limpio el espacio de comentarios |
 | [HU-29](HU-29-responder-a-un-comentario.md) | Responder a un comentario | RF_052, RF_053 | Permite conversaciones enfocadas dentro de los comentarios |
 
+## Módulo 6 — Métricas de uso
+
+**Corrección de alcance:** RF_032 ("Registro de visitas") había quedado fuera de todos
+los módulos anteriores por un error de agrupación inicial. Al no ser una historia
+propia (es la captura de datos, no una funcionalidad visible), se incorporó aquí como
+criterio de aceptación de HU-31, que es la métrica que consume esos datos.
+
+| ID | Título | Requerimientos cubiertos | Valor de negocio |
+|---|---|---|---|
+| [HU-30](HU-30-acceder-al-panel-de-metricas.md) | Acceder al panel de métricas de uso | RF_055 | Punto único para consultar el uso real del atlas |
+| [HU-31](HU-31-metrica-de-visitas-por-periodo.md) | Ver la métrica de visitas totales por periodo | RF_032, RF_056 | Indicador clave de adopción del atlas |
+| [HU-32](HU-32-metrica-de-ejercicios-mas-consultados.md) | Ver la métrica de ejercicios más consultados | RF_057 | Ayuda a priorizar qué contenido mantener o mejorar |
+| [HU-33](HU-33-metrica-de-usuarios-activos-por-rol.md) | Ver la métrica de usuarios activos por rol | RF_058 | Entender la composición real de la audiencia |
+| [HU-34](HU-34-metrica-de-tiempo-promedio-de-uso.md) | Ver la métrica de tiempo promedio de uso por sesión | RF_059 | Mide la profundidad de uso, no solo la cantidad de visitas |
+
 ## Módulos pendientes
 
-- Módulo 6 — Métricas de uso (RF_055–RF_059)
 - Módulo 7 — Requerimientos no funcionales (RNF_001–RNF_005)
