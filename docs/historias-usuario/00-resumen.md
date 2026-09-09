@@ -51,9 +51,18 @@ de aceptación dentro de HU-11, ya que es una regla del sistema aplicada al publ
 | [HU-14](HU-14-archivar-ficha-publicada.md) | Archivar una ficha publicada | RF_049 | Retiro reversible de contenido, sin perder la información |
 | [HU-15](HU-15-gestion-compartida-de-fichas.md) | Gestionar fichas creadas por otros administradores | RF_050 | Permite el trabajo colaborativo entre docentes sobre el mismo contenido |
 
+## Módulo 4 — Autenticación y cuenta de usuario
+
+| ID | Título | Requerimientos cubiertos | Valor de negocio |
+|---|---|---|---|
+| [HU-16](HU-16-iniciar-sesion.md) | Iniciar sesión en el atlas | RF_028 | Puerta de entrada obligatoria a todo el sistema |
+| [HU-17](HU-17-autorregistro-con-rol.md) | Crear una cuenta y seleccionar mi rol | RF_046, RF_054 | Crecimiento autónomo de la base de usuarios, con datos de rol para métricas |
+| [HU-18](HU-18-recuperar-contrasena.md) | Recuperar contraseña olvidada | RF_047 | Evita que un usuario quede bloqueado fuera de su cuenta |
+| [HU-19](HU-19-cierre-de-sesion-con-periodo-de-gracia.md) | Cierre automático de sesión con periodo de gracia | RF_029, RF_030 | Protege cuentas en dispositivos compartidos sin penalizar cierres accidentales |
+| [HU-20](HU-20-aviso-de-cambios-sin-guardar.md) | Aviso de cambios sin guardar al cerrar la página | RF_031 | Evita pérdida de trabajo, sobre todo en el formulario largo de la ficha |
+
 ## Módulos pendientes
 
-- Módulo 4 — Autenticación y cuenta de usuario (RF_028, RF_029, RF_030, RF_031, RF_046, RF_047, RF_054)
 - Módulo 5 — Comentarios (RF_033–RF_045, RF_052, RF_053)
 - Módulo 6 — Métricas de uso (RF_055–RF_059)
 - Módulo 7 — Requerimientos no funcionales (RNF_001–RNF_005)
