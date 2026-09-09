@@ -22,9 +22,23 @@ cada entrega.
 | [HU-02](HU-02-ver-ficha-completa-de-ejercicio.md) | Ver la ficha completa de un ejercicio | RF_004 | Entrega el detalle clínico completo del ejercicio, el valor central del atlas |
 | [HU-03](HU-03-buscar-ejercicios-por-nombre.md) | Buscar ejercicios por nombre | RF_051 | Acceso directo a un ejercicio conocido sin navegar por región/categoría |
 
+## Módulo 2 — Gestión de la ficha de ejercicio
+
+Los campos de RF_005–RF_021 se agruparon por sección lógica en 6 historias (ver
+decisión de alcance arriba); RF_022 y RF_023 quedan como criterios de aceptación
+dentro de HU-04.
+
+| ID | Título | Requerimientos cubiertos | Valor de negocio |
+|---|---|---|---|
+| [HU-04](HU-04-informacion-general-de-la-ficha.md) | Registrar la información general de la ficha | RF_005, RF_022, RF_023 | Crea el registro base de la ficha sobre el que se apoya el resto del contenido |
+| [HU-05](HU-05-protocolo-clinico-del-ejercicio.md) | Registrar el protocolo clínico del ejercicio | RF_006, RF_007, RF_008, RF_009 | Documenta el criterio clínico que justifica el uso del ejercicio |
+| [HU-06](HU-06-ejecucion-del-ejercicio.md) | Registrar la ejecución del ejercicio | RF_010, RF_011, RF_012, RF_013 | Guía operativa para reproducir correctamente el ejercicio |
+| [HU-07](HU-07-dosificacion-y-progresion.md) | Registrar dosificación, progresión y errores comunes | RF_014, RF_015, RF_016 | Permite prescribir el ejercicio de forma segura y ajustarlo/corregirlo |
+| [HU-08](HU-08-multimedia-de-la-ficha.md) | Cargar el video e imágenes del ejercicio | RF_017, RF_018 | Material visual que facilita reproducir el ejercicio correctamente |
+| [HU-09](HU-09-metadatos-academicos-de-la-ficha.md) | Registrar los metadatos académicos de la ficha | RF_019, RF_020, RF_021 | Trazabilidad académica de quién elaboró y aprobó cada ficha |
+
 ## Módulos pendientes
 
-- Módulo 2 — Gestión de la ficha de ejercicio (RF_005–RF_021, RF_022, RF_023)
 - Módulo 3 — Ciclo de vida de publicación de la ficha (RF_024, RF_025, RF_026, RF_027, RF_048, RF_049, RF_050)
 - Módulo 4 — Autenticación y cuenta de usuario (RF_028, RF_029, RF_030, RF_031, RF_046, RF_047, RF_054)
 - Módulo 5 — Comentarios (RF_033–RF_045, RF_052, RF_053)

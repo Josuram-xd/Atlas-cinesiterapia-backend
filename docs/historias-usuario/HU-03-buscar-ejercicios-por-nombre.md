@@ -40,12 +40,9 @@ Característica: Búsqueda de ejercicios por nombre
 - No se especifica un mínimo de caracteres para disparar la búsqueda; se asumió que solo se bloquea el texto completamente vacío.
 - La búsqueda solo considera ejercicios con ficha publicada (coherente con HU-02).
 
-**Pantallas para mockup**
+**Mockup**
 
-| # | Pantalla | Elementos mínimos |
-|---|---|---|
-| 01 | Barra de búsqueda (en la pantalla principal) | Campo de búsqueda visible junto al selector de región (ver HU-01) |
-| 03 | Resultados de búsqueda (reutiliza el listado de ejercicios) | Grid o lista de nombres de ejercicios que coinciden; estado vacío ("no se encontraron ejercicios") |
+![Mockup HU-03](./mockups/HU-03.png)
 
 Prompt sugerido (Lovable / v0.dev):
 > Campo de búsqueda en la cabecera del atlas de ejercicios de fisioterapia. Al escribir, se muestra debajo un listado en grid con los ejercicios cuyo nombre coincide, o un estado vacío ilustrado con el mensaje "no se encontraron ejercicios" cuando no hay coincidencias.
