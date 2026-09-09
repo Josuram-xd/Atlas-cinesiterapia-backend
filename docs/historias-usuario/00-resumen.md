@@ -37,9 +37,22 @@ dentro de HU-04.
 | [HU-08](HU-08-multimedia-de-la-ficha.md) | Cargar el video e imágenes del ejercicio | RF_017, RF_018 | Material visual que facilita reproducir el ejercicio correctamente |
 | [HU-09](HU-09-metadatos-academicos-de-la-ficha.md) | Registrar los metadatos académicos de la ficha | RF_019, RF_020, RF_021 | Trazabilidad académica de quién elaboró y aprobó cada ficha |
 
+## Módulo 3 — Ciclo de vida de publicación de la ficha
+
+RF_025 (validación antes de publicar) no es una historia propia: queda como criterio
+de aceptación dentro de HU-11, ya que es una regla del sistema aplicada al publicar.
+
+| ID | Título | Requerimientos cubiertos | Valor de negocio |
+|---|---|---|---|
+| [HU-10](HU-10-guardar-ficha-como-borrador.md) | Guardar la ficha como borrador | RF_024 | Evita perder trabajo y evita exponer contenido incompleto a los estudiantes |
+| [HU-11](HU-11-publicar-ficha-validada.md) | Publicar una ficha validada | RF_025, RF_026 | Garantiza que solo se publique contenido clínicamente completo |
+| [HU-12](HU-12-editar-ficha-publicada.md) | Editar una ficha publicada | RF_027 | Permite corregir/actualizar contenido sin despublicar ni duplicar la ficha |
+| [HU-13](HU-13-eliminar-ficha-publicada.md) | Eliminar una ficha publicada | RF_048 | Retira del atlas contenido que no debería existir |
+| [HU-14](HU-14-archivar-ficha-publicada.md) | Archivar una ficha publicada | RF_049 | Retiro reversible de contenido, sin perder la información |
+| [HU-15](HU-15-gestion-compartida-de-fichas.md) | Gestionar fichas creadas por otros administradores | RF_050 | Permite el trabajo colaborativo entre docentes sobre el mismo contenido |
+
 ## Módulos pendientes
 
-- Módulo 3 — Ciclo de vida de publicación de la ficha (RF_024, RF_025, RF_026, RF_027, RF_048, RF_049, RF_050)
 - Módulo 4 — Autenticación y cuenta de usuario (RF_028, RF_029, RF_030, RF_031, RF_046, RF_047, RF_054)
 - Módulo 5 — Comentarios (RF_033–RF_045, RF_052, RF_053)
 - Módulo 6 — Métricas de uso (RF_055–RF_059)
