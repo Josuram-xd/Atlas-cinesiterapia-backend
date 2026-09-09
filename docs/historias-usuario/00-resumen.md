@@ -61,8 +61,26 @@ de aceptación dentro de HU-11, ya que es una regla del sistema aplicada al publ
 | [HU-19](HU-19-cierre-de-sesion-con-periodo-de-gracia.md) | Cierre automático de sesión con periodo de gracia | RF_029, RF_030 | Protege cuentas en dispositivos compartidos sin penalizar cierres accidentales |
 | [HU-20](HU-20-aviso-de-cambios-sin-guardar.md) | Aviso de cambios sin guardar al cerrar la página | RF_031 | Evita pérdida de trabajo, sobre todo en el formulario largo de la ficha |
 
+## Módulo 5 — Comentarios
+
+RF_038 (cola de comentarios ocultados), RF_043 (relación ejercicio-comentario), RF_044
+(relación usuario-comentario) y RF_053 (relación comentario-respuesta) no son historias
+propias: quedan como criterios de aceptación dentro de la historia funcional a la que
+pertenecen (ver "Supuestos" de cada HU).
+
+| ID | Título | Requerimientos cubiertos | Valor de negocio |
+|---|---|---|---|
+| [HU-21](HU-21-escribir-y-consultar-comentarios.md) | Escribir y consultar comentarios en un ejercicio | RF_033, RF_036 | Habilita la interacción y el aprendizaje colaborativo alrededor de cada ejercicio |
+| [HU-22](HU-22-editar-mi-comentario.md) | Editar mi propio comentario | RF_034 | Permite corregir o precisar lo dicho sin borrar y reescribir |
+| [HU-23](HU-23-eliminar-mi-comentario.md) | Eliminar mi propio comentario | RF_035 | Da control al usuario sobre su propio contenido |
+| [HU-24](HU-24-ocultamiento-automatico-de-contenido-ofensivo.md) | Ocultar automáticamente comentarios con contenido ofensivo | RF_037, RF_045 | Protege a los usuarios de contenido ofensivo mientras se revisa |
+| [HU-25](HU-25-reportar-comentario.md) | Reportar un comentario ofensivo | RF_039 | Complementa el filtro automático con moderación de la comunidad |
+| [HU-26](HU-26-revisar-comentarios-ocultados-y-reportados.md) | Revisar comentarios ocultados y reportados | RF_038, RF_040 | Punto central de moderación para el administrador |
+| [HU-27](HU-27-aceptar-comentario-en-revision.md) | Aceptar un comentario en revisión | RF_041 | Corrige falsos positivos del filtro y cierra reportes infundados |
+| [HU-28](HU-28-eliminar-cualquier-comentario.md) | Eliminar cualquier comentario como administrador | RF_042 | Control total del administrador para mantener limpio el espacio de comentarios |
+| [HU-29](HU-29-responder-a-un-comentario.md) | Responder a un comentario | RF_052, RF_053 | Permite conversaciones enfocadas dentro de los comentarios |
+
 ## Módulos pendientes
 
-- Módulo 5 — Comentarios (RF_033–RF_045, RF_052, RF_053)
 - Módulo 6 — Métricas de uso (RF_055–RF_059)
 - Módulo 7 — Requerimientos no funcionales (RNF_001–RNF_005)
