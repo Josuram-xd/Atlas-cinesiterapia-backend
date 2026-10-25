@@ -24,6 +24,7 @@ Leyenda de estado: **[implementado]** ya existe en el backend; **[planificado]**
 | `GET /ejercicios/{id}` | 3.3 | implementado |
 | `GET /ejercicios/buscar?q=` | 3.4 | implementado |
 | Cabeceras de cache (ETag / Cache-Control) | 3.5 | implementado |
+| `GET/POST /ejercicios/{id}/comentarios` | 4.2 | implementado |
 
 Los datos semilla (27 regiones y 9 categorias, seccion 3) ya existen en la base desde la task 2.1.
 
@@ -428,6 +429,47 @@ Los medios en estado pendiente que nunca se confirman no se muestran ni cuentan.
 
 ---
 
-## 8. Modulos futuros (fases 4–5)
+## 8. Comentarios [en construccion, fase 4]
 
-Comentarios, moderacion y metricas se documentaran aqui cuando se disenen (no forman parte de este contrato todavia).
+Disponible para cualquier usuario autenticado. Los comentarios son **texto plano**: el front debe renderizarlos como texto (nunca como HTML). El backend elimina caracteres de control e invisibles y rechaza cualquier etiqueta HTML (`TEXTO_INVALIDO`).
+
+### Tipos
+
+```ts
+type EstadoComentario = "PUBLICADO" | "EN_REVISION" | "ELIMINADO";
+
+type Autor = { id: number; nombre: string; rolPerfil: RolPerfil }; // nombre = parte local del correo; nunca el correo completo
+
+type Comentario = {
+  id: number;
+  ejercicioId: number;
+  padreId: number | null;      // null en comentarios raiz
+  autor: Autor | null;         // null si estado = ELIMINADO
+  texto: string | null;        // null si estado = ELIMINADO (mostrar "comentario eliminado")
+  estado: EstadoComentario;
+  enRevision: boolean;         // true solo para el propio autor (mostrar atenuado, "esperando revision")
+  eliminado: boolean;
+  propio: boolean;             // true si el usuario autenticado es el autor (mostrar Editar / Eliminar)
+  createdAt: string;
+  editadoAt: string | null;
+  respuestas: Comentario[];    // solo en raices (vacio en respuestas); orden cronologico
+};
+```
+
+Hilos de un nivel: una respuesta siempre cuelga de un comentario raiz. Un comentario `EN_REVISION` solo lo ve su autor; los demas usuarios nunca lo reciben. Un comentario raiz `ELIMINADO` solo aparece (sin texto ni autor) mientras conserve respuestas visibles.
+
+### `GET /ejercicios/{ejercicioId}/comentarios?page=0&size=20` — 200 [implementado]
+
+Pagina (`Pagina<Comentario>`, ver Paginacion; `size` 1–100) de comentarios **raiz**, del mas reciente al mas antiguo, cada uno con sus `respuestas` visibles para quien consulta. Pagina vacia si no hay comentarios (mostrar "aun no hay comentarios"). Respuestas sin cache (`no-store`: dependen del usuario).
+Errores: 404 `EJERCICIO_NO_ENCONTRADO` (ficha inexistente o no publicada).
+
+### `POST /ejercicios/{ejercicioId}/comentarios` — 201 [implementado]
+
+Cuerpo: `{ "texto": string }` (1–1000 caracteres tras limpiar). Devuelve `Comentario`.
+Errores: 400 `VALIDATION_ERROR` (vacio / mas de 1000), 400 `TEXTO_INVALIDO` (contiene HTML o queda vacio), 404 `EJERCICIO_NO_ENCONTRADO`, 429 `DEMASIADOS_INTENTOS` (limite por usuario contra spam; ver `RATE_LIMIT_MAX`/`RATE_LIMIT_WINDOW`).
+
+---
+
+## 9. Modulos futuros
+
+Moderacion de comentarios y metricas se documentaran aqui al implementarse.
