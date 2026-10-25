@@ -37,7 +37,7 @@ public class RestSecurityErrorHandler implements AuthenticationEntryPoint, Acces
         escribir(req, res, HttpStatus.FORBIDDEN, "ACCESS_DENIED", "No tienes permiso para esta accion");
     }
 
-    private void escribir(HttpServletRequest req, HttpServletResponse res, HttpStatus status, String code, String msg)
+    public void escribir(HttpServletRequest req, HttpServletResponse res, HttpStatus status, String code, String msg)
             throws IOException {
         res.setStatus(status.value());
         res.setContentType(MediaType.APPLICATION_JSON_VALUE);

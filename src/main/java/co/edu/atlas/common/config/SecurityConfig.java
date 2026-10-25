@@ -3,6 +3,8 @@ package co.edu.atlas.common.config;
 import co.edu.atlas.auth.jwt.JwtService;
 import co.edu.atlas.auth.security.JwtAuthenticationFilter;
 import co.edu.atlas.auth.security.RestSecurityErrorHandler;
+import co.edu.atlas.common.ratelimit.RateLimitFilter;
+import co.edu.atlas.common.ratelimit.RateLimiter;
 import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,7 +32,8 @@ public class SecurityConfig {
     };
 
     @Bean
-    SecurityFilterChain filterChain(HttpSecurity http, JwtService jwt, RestSecurityErrorHandler errores)
+    SecurityFilterChain filterChain(
+            HttpSecurity http, JwtService jwt, RestSecurityErrorHandler errores, RateLimiter limiter)
             throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
@@ -42,6 +45,7 @@ public class SecurityConfig {
                         .permitAll()
                         .anyRequest()
                         .authenticated())
+                .addFilterBefore(new RateLimitFilter(limiter, errores), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtAuthenticationFilter(jwt), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }

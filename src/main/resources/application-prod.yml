@@ -25,3 +25,7 @@ springdoc:
     enabled: ${SPRINGDOC_ENABLED:false}
   swagger-ui:
     enabled: ${SPRINGDOC_ENABLED:false}
+
+server:
+  # Detras del proxy de Render: toma la IP real del cliente de X-Forwarded-For.
+  forward-headers-strategy: native

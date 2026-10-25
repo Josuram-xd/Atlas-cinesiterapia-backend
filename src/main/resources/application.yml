@@ -31,6 +31,9 @@ app:
     frontend-url: ${FRONTEND_URL:http://localhost:5173}
     reset-ttl: ${RESET_TTL:30m}
     close-grace: ${CLOSE_GRACE:60s}
+  rate-limit:
+    max-requests: ${RATE_LIMIT_MAX:10}
+    window: ${RATE_LIMIT_WINDOW:1m}
   cors:
     allowed-origins: ${CORS_ORIGINS:http://localhost:5173}
 
