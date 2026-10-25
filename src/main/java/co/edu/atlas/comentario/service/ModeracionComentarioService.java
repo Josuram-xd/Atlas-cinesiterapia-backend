@@ -5,9 +5,11 @@ import co.edu.atlas.comentario.ComentarioRepository;
 import co.edu.atlas.comentario.ReporteComentarioRepository;
 import co.edu.atlas.comentario.TipoRevision;
 import co.edu.atlas.comentario.dto.ComentarioRevisionResponse;
+import co.edu.atlas.common.error.ApiException;
 import co.edu.atlas.common.web.Pagina;
 import co.edu.atlas.ejercicio.Ejercicio;
 import co.edu.atlas.ejercicio.EjercicioRepository;
+import java.time.Clock;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -26,9 +28,14 @@ public class ModeracionComentarioService {
     private final ComentarioRepository comentarios;
     private final ReporteComentarioRepository reportes;
     private final EjercicioRepository ejercicios;
+    private final Clock clock;
 
     public ModeracionComentarioService(
-            ComentarioRepository comentarios, ReporteComentarioRepository reportes, EjercicioRepository ejercicios) {
+            ComentarioRepository comentarios,
+            ReporteComentarioRepository reportes,
+            EjercicioRepository ejercicios,
+            Clock clock) {
+        this.clock = clock;
         this.comentarios = comentarios;
         this.reportes = reportes;
         this.ejercicios = ejercicios;
@@ -45,6 +52,32 @@ public class ModeracionComentarioService {
         Map<Long, String> nombres = nombresDeFichas(filas.stream().map(Comentario::getEjercicioId).distinct().toList());
         return Pagina.de(
                 pagina, c -> ComentarioRevisionResponse.de(c, nombres.get(c.getEjercicioId()), totales.getOrDefault(c.getId(), 0L)));
+    }
+
+    /** Acepta (HU-27): vuelve a PUBLICADO y limpia los reportes. Idempotente para comentarios ya publicados. */
+    public ComentarioRevisionResponse aceptar(Long id) {
+        Comentario c = existente(id);
+        c.aceptar();
+        reportes.borrarDeComentario(id);
+        return ComentarioRevisionResponse.de(c, nombreDeFicha(c.getEjercicioId()), 0);
+    }
+
+    /** Elimina cualquier comentario (HU-28), publicado o en la cola. Borrado blando; descarta sus reportes. */
+    public void eliminar(Long id) {
+        Comentario c = existente(id);
+        c.eliminar(clock.instant());
+        reportes.borrarDeComentario(id);
+    }
+
+    private Comentario existente(Long id) {
+        return comentarios
+                .findById(id)
+                .filter(c -> !c.estaEliminado())
+                .orElseThrow(() -> ApiException.notFound("COMENTARIO_NO_ENCONTRADO", "El comentario no existe"));
+    }
+
+    private String nombreDeFicha(Long ejercicioId) {
+        return nombresDeFichas(List.of(ejercicioId)).get(ejercicioId);
     }
 
     private Map<Long, Long> totalesDeReportes(Collection<Long> ids) {

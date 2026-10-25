@@ -30,6 +30,7 @@ Leyenda de estado: **[implementado]** ya existe en el backend; **[planificado]**
 | Filtro de ofensivas (estado `EN_REVISION`, campo `enRevision`) | 4.5 | implementado |
 | `POST /comentarios/{id}/reportes` | 4.6 | implementado |
 | `GET /admin/comentarios/revision` | 4.7 | implementado |
+| `POST /admin/comentarios/{id}/aceptar`, `DELETE /admin/comentarios/{id}` | 4.8 | implementado |
 
 Los datos semilla (27 regiones y 9 categorias, seccion 3) ya existen en la base desde la task 2.1.
 
@@ -519,6 +520,16 @@ type ComentarioRevision = {
 
 `Pagina<ComentarioRevision>`, el mas antiguo primero. `tipo`: `OCULTADOS` (estado `EN_REVISION`), `REPORTADOS` (con al menos un reporte) o ausente (ambos). Un comentario puede ser ambos. Los eliminados no aparecen. Pagina vacia = "no hay comentarios pendientes de revision".
 Errores: 400 `VALIDATION_ERROR` / `MALFORMED_REQUEST` (tipo o paginacion invalidos), 403 `ACCESS_DENIED`.
+
+### `POST /admin/comentarios/{id}/aceptar` — 200 [implementado]
+
+Vuelve el comentario a `PUBLICADO` (visible para todos; deja de verse como "esperando revision" para su autor) y **borra todos sus reportes** (los mismos usuarios podrian volver a reportarlo). Devuelve `ComentarioRevision` (con `totalReportes: 0`). Idempotente sobre comentarios ya publicados.
+Errores: 403 `ACCESS_DENIED`, 404 `COMENTARIO_NO_ENCONTRADO` (inexistente o ya eliminado).
+
+### `DELETE /admin/comentarios/{id}` — 204 [implementado]
+
+Elimina cualquier comentario (publicado, en revision o reportado): borrado blando, se vacia el texto y se descartan los reportes. Si tenia respuestas, el listado lo muestra como "comentario eliminado". Desaparece de la ficha y de la cola.
+Errores: 403 `ACCESS_DENIED`, 404 `COMENTARIO_NO_ENCONTRADO`.
 
 ---
 

@@ -86,7 +86,7 @@ Cada región guarda `svg_id` (id del path en el SVG del front). Sin distinción 
 - [x] 4.5 Filtro de contenido ofensivo (normaliza acentos y sustituciones) → estado EN_REVISION; el autor ve su comentario atenuado (HU-24)
 - [x] 4.6 Reportar comentario (HU-25)
 - [x] 4.7 Cola de revisión para admin: ocultados + reportados (HU-26)
-- [ ] 4.8 Aceptar comentario y eliminar cualquier comentario como admin (HU-27, HU-28)
+- [x] 4.8 Aceptar comentario y eliminar cualquier comentario como admin (HU-27, HU-28)
 - [ ] 4.9 CRUD admin de la lista de palabras ofensivas
 
 ## Fase 5 — Métricas (HU-30 a HU-34)
