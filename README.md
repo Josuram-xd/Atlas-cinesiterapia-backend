@@ -37,6 +37,11 @@ Copia `.env.example` a `.env` (ignorado por git) como referencia. Spring Boot le
 | `DATABASE_URL` | URL JDBC, p. ej. `jdbc:postgresql://<host>/<db>?sslmode=require` (Neon) | `jdbc:postgresql://localhost:5432/atlas` |
 | `DB_USER` / `DB_PASSWORD` | Credenciales de la base de datos | `atlas` / `atlas` |
 | `DB_POOL_SIZE` | Tamano maximo del pool Hikari | `5` |
+| `JWT_SECRET` | Secreto HS256 (min. 32 caracteres). Obligatorio en prod; dev trae uno de ejemplo | solo dev |
+| `FRONTEND_URL` | Base de los enlaces de correo (recuperar contrasena) | `http://localhost:5173` |
+| `RESET_TTL` / `CLOSE_GRACE` | Vigencia del token de recuperacion / gracia de cierre de sesion | `30m` / `60s` |
+| `RATE_LIMIT_MAX` / `RATE_LIMIT_WINDOW` | Intentos por ventana en login, registro, recuperar y restablecer | `10` / `1m` |
+| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Seed del primer administrador (opcional, clave min. 8) | vacio |
 | `SPRINGDOC_ENABLED` | Habilita Swagger UI y `/v3/api-docs` | `true` en dev, `false` en prod |
 
 En el perfil `prod` no hay valores por defecto para `DATABASE_URL`, `DB_USER`, `DB_PASSWORD` ni `CORS_ORIGINS`, y la conexion exige SSL (`sslmode=require`).
@@ -57,6 +62,23 @@ docker compose up -d
 ```
 
 Flyway aplica las migraciones de `src/main/resources/db/migration` al arrancar. Salud del servicio: `GET /actuator/health`.
+
+## Autenticacion
+
+Todo requiere `Authorization: Bearer <accessToken>` salvo `/auth/**`, `/actuator/health` y la documentacion (solo activa si `SPRINGDOC_ENABLED`).
+
+| Endpoint | Descripcion |
+|---|---|
+| `POST /auth/registro` | Crea cuenta con rol de perfil (ESTUDIANTE, PROFESIONAL, PRACTICANTE, VISITANTE) |
+| `POST /auth/login` | Devuelve access token (15 min) y refresh token (7 dias, guardado hasheado) |
+| `POST /auth/refresh` | Rota el refresh token; reutilizar uno viejo revoca todas las sesiones |
+| `POST /auth/logout` | Revoca el refresh token de inmediato |
+| `POST /auth/cierre-pendiente` | Inicia la gracia de 60 s; un refresh dentro del plazo la cancela (usar `sendBeacon` al cerrar la pagina) |
+| `POST /auth/recuperar` / `POST /auth/restablecer` | Recuperacion de contrasena con token de un solo uso; el correo se envia por la interfaz `CorreoSender` (en dev solo se escribe en el log) |
+| `GET /auth/me` | Datos del usuario autenticado |
+| `POST /admin/usuarios/{id}/promover` | Promueve a ADMIN (solo ADMIN) |
+
+Limitaciones conocidas: el access token ya emitido sigue valido hasta expirar (15 min) tras logout o cierre; el rate limit es en memoria (una sola instancia).
 
 ## Formato de errores
 

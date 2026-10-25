@@ -15,7 +15,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 /** Limita los POST a las rutas sensibles de autenticacion por IP de cliente. */
 public class RateLimitFilter extends OncePerRequestFilter {
 
-    static final Set<String> RUTAS_LIMITADAS = Set.of("/auth/login", "/auth/registro", "/auth/recuperar");
+    static final Set<String> RUTAS_LIMITADAS = Set.of("/auth/login", "/auth/registro", "/auth/recuperar", "/auth/restablecer");
 
     private final RateLimiter limiter;
     private final RestSecurityErrorHandler errores;
