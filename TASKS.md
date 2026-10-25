@@ -72,7 +72,7 @@ Cada región guarda `svg_id` (id del path en el SVG del front). Sin distinción 
 - [x] 2.9 Tests de integración del ciclo de vida completo de la ficha
 
 ## Fase 3 — API de consulta del atlas (HU-01 a HU-03)
-- [ ] 3.1 `GET /regiones`, `GET /regiones/{id}/categorias`
+- [x] 3.1 `GET /regiones`, `GET /regiones/{id}/categorias`
 - [ ] 3.2 `GET /ejercicios?region&categoria` solo publicados (HU-01)
 - [ ] 3.3 `GET /ejercicios/{id}` ficha completa con media (HU-02)
 - [ ] 3.4 `GET /ejercicios/buscar?q=` con índice `pg_trgm` y búsqueda sin acentos (HU-03)

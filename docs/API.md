@@ -19,7 +19,7 @@ Leyenda de estado: **[implementado]** ya existe en el backend; **[planificado]**
 | `POST /admin/ejercicios/{id}/publicar`, campo `camposFaltantes` | 2.5 | implementado |
 | Validacion completa de `PUT` en fichas publicadas/archivadas | 2.6 | implementado |
 | `archivar`, `restaurar`, `DELETE` | 2.7 | implementado |
-| `GET /regiones`, `/regiones/{id}/categorias`, `/categorias` | 3.1 | planificado |
+| `GET /regiones`, `/regiones/{id}/categorias`, `/categorias` | 3.1 | implementado |
 | `GET /ejercicios`, `/ejercicios/{id}`, `/ejercicios/buscar` | 3.2–3.4 | planificado |
 | Cabeceras de cache | 3.5 | planificado |
 
@@ -166,7 +166,7 @@ Devuelve `UsuarioResponse` con `rolSistema: "ADMIN"`. Idempotente. Errores: 403 
 
 ---
 
-## 3. Catalogos [planificado, tasks 2.1 y 3.1]
+## 3. Catalogos [implementado, tasks 2.1 y 3.1]
 
 Requieren sesion (cualquier rol). Los IDs son estables (seed); el front debe mapear por `svgId`.
 
@@ -188,6 +188,8 @@ Devuelve `CategoriaConConteo[]` (las 9 categorias, ordenadas por `orden`):
 [ { "id": 1, "nombre": "Movilización pasiva", "orden": 1, "totalEjercicios": 3 } ]
 ```
 `totalEjercicios` = ejercicios **publicados** de esa region en esa categoria (0 = estado vacio). Errores: 404 `REGION_NO_ENCONTRADA`.
+
+`GET /regiones` con `vista` desconocida (por ejemplo `LATERAL`): 400 `MALFORMED_REQUEST`.
 
 ### `GET /categorias` — 200
 `Categoria[]` (las 9). Util para formularios de administracion.
