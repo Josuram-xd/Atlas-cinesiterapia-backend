@@ -16,6 +16,7 @@ class AccesoMetricasTests extends ApiIntegrationTest {
     /** Todas las rutas de consulta de metricas: solo ADMIN. Se amplia con cada metrica. */
     static final String[] RUTAS_ADMIN = {
         "/admin/metricas",
+        "/admin/metricas/visitas?desde=2026-01-01&hasta=2026-01-31",
     };
 
     @Autowired

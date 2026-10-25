@@ -1,11 +1,16 @@
 package co.edu.atlas.metricas.web;
 
+import co.edu.atlas.metricas.Agrupacion;
 import co.edu.atlas.metricas.dto.ResumenMetricasResponse;
+import co.edu.atlas.metricas.dto.VisitasPeriodoResponse;
 import co.edu.atlas.metricas.service.ConsultaMetricasService;
+import java.time.LocalDate;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /** Panel de metricas de uso (HU-30): todo el modulo es exclusivo de administradores. */
@@ -24,5 +29,13 @@ public class MetricasAdminController {
     @GetMapping
     public ResumenMetricasResponse resumen() {
         return service.resumen();
+    }
+
+    @GetMapping("/visitas")
+    public VisitasPeriodoResponse visitas(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta,
+            @RequestParam(defaultValue = "DIA") Agrupacion agrupacion) {
+        return service.visitasPorPeriodo(desde, hasta, agrupacion);
     }
 }

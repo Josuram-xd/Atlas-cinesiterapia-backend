@@ -34,6 +34,7 @@ Leyenda de estado: **[implementado]** ya existe en el backend; **[planificado]**
 | `/admin/palabras-ofensivas` (CRUD) | 4.9 | implementado |
 | `POST /metricas/visitas`, `POST /metricas/sesion/ping` | 5.1 | implementado |
 | `GET /admin/metricas` (solo ADMIN) | 5.2 | implementado |
+| `GET /admin/metricas/visitas` | 5.3 | implementado |
 
 Los datos semilla (27 regiones y 9 categorias, seccion 3) ya existen en la base desde la task 2.1.
 
@@ -591,6 +592,21 @@ Resumen para las tarjetas del panel.
 ```ts
 type ResumenMetricas = { visitasTotales: number; visitasUltimos30Dias: number; sesionesTotales: number };
 ```
+
+#### `GET /admin/metricas/visitas?desde=&hasta=&agrupacion=DIA` — 200 [implementado]
+
+Visitas (atlas + fichas) por periodo (HU-31). `desde` y `hasta` obligatorios (`AAAA-MM-DD`, ambos incluidos, **maximo 366 dias**); `agrupacion`: `DIA` (por defecto), `SEMANA` (semanas que empiezan el lunes) o `MES`. Un rango personalizado es simplemente otro `desde`/`hasta`; para "dia/semana/mes actuales" el front calcula el rango.
+
+```ts
+type VisitasPeriodo = {
+  desde: string; hasta: string; agrupacion: "DIA" | "SEMANA" | "MES";
+  total: number;                                   // 0 si no hay visitas
+  serie: { inicio: string; visitas: number }[];    // inicio = dia, lunes o dia 1; cubos vacios incluidos con 0
+};
+```
+
+En SEMANA/MES el primer y ultimo cubo solo cuentan los dias dentro del rango (su `inicio` puede ser anterior a `desde`).
+Errores: 400 `RANGO_INVALIDO` (desde > hasta o mas de 366 dias), 400 `MALFORMED_REQUEST` (falta un parametro, fecha o agrupacion invalida), 403 `ACCESS_DENIED`.
 
 ---
 
