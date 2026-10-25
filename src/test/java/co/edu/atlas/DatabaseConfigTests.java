@@ -33,8 +33,9 @@ class DatabaseConfigTests {
 
     @Test
     void flywayAppliedBaselineMigration() {
-        assertThat(flyway.info().applied()).hasSize(1);
-        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("1");
+        assertThat(flyway.info().applied()).isNotEmpty();
+        assertThat(flyway.info().applied()[0].getVersion().getVersion()).isEqualTo("1");
+        assertThat(flyway.info().pending()).isEmpty();
     }
 
     @Test

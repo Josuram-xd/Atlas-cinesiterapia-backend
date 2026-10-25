@@ -51,7 +51,7 @@ Cada región guarda `svg_id` (id del path en el SVG del front). Sin distinción 
 - [x] 0.5 Actualizar README con stack, variables de entorno y cómo correr
 
 ## Fase 1 — Autenticación (HU-16 a HU-20; RNF_001, RNF_002)
-- [ ] 1.1 Migración y entidad `usuario` (correo único, hash, rol de perfil, rol de sistema)
+- [x] 1.1 Migración y entidad `usuario` (correo único, hash, rol de perfil, rol de sistema)
 - [ ] 1.2 `POST /auth/registro` con rol de perfil (HU-17)
 - [ ] 1.3 `POST /auth/login`, `/auth/refresh`, `/auth/logout` con JWT y refresh rotativo (HU-16)
 - [ ] 1.4 Filtro de seguridad, `@PreAuthorize` por rol, todo protegido salvo auth
