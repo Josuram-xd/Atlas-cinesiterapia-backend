@@ -21,7 +21,7 @@ Leyenda de estado: **[implementado]** ya existe en el backend; **[planificado]**
 | `archivar`, `restaurar`, `DELETE` | 2.7 | implementado |
 | `GET /regiones`, `/regiones/{id}/categorias`, `/categorias` | 3.1 | implementado |
 | `GET /ejercicios?region&categoria` | 3.2 | implementado |
-| `GET /ejercicios/{id}` | 3.3 | planificado |
+| `GET /ejercicios/{id}` | 3.3 | implementado |
 | `GET /ejercicios/buscar?q=` | 3.4 | planificado |
 | Cabeceras de cache | 3.5 | planificado |
 
