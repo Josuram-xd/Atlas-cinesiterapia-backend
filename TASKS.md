@@ -68,7 +68,7 @@ Cada región guarda `svg_id` (id del path en el SVG del front). Sin distinción 
 - [x] 2.5 Validación de campos obligatorios y `POST /ejercicios/{id}/publicar` (HU-11)
 - [x] 2.6 Editar ficha publicada (HU-12)
 - [x] 2.7 Archivar / restaurar / eliminar (borrado blando) (HU-13, HU-14)
-- [ ] 2.8 Gestión compartida: cualquier admin lista y edita todas las fichas (HU-15)
+- [x] 2.8 Gestión compartida: cualquier admin lista y edita todas las fichas (HU-15)
 - [ ] 2.9 Tests de integración del ciclo de vida completo de la ficha
 
 ## Fase 3 — API de consulta del atlas (HU-01 a HU-03)
