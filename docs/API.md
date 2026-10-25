@@ -25,6 +25,7 @@ Leyenda de estado: **[implementado]** ya existe en el backend; **[planificado]**
 | `GET /ejercicios/buscar?q=` | 3.4 | implementado |
 | Cabeceras de cache (ETag / Cache-Control) | 3.5 | implementado |
 | `GET/POST /ejercicios/{id}/comentarios` | 4.2 | implementado |
+| `PUT/DELETE /comentarios/{id}` (propio) | 4.3 | implementado |
 
 Los datos semilla (27 regiones y 9 categorias, seccion 3) ya existen en la base desde la task 2.1.
 
@@ -467,6 +468,16 @@ Errores: 404 `EJERCICIO_NO_ENCONTRADO` (ficha inexistente o no publicada).
 
 Cuerpo: `{ "texto": string }` (1–1000 caracteres tras limpiar). Devuelve `Comentario`.
 Errores: 400 `VALIDATION_ERROR` (vacio / mas de 1000), 400 `TEXTO_INVALIDO` (contiene HTML o queda vacio), 404 `EJERCICIO_NO_ENCONTRADO`, 429 `DEMASIADOS_INTENTOS` (limite por usuario contra spam; ver `RATE_LIMIT_MAX`/`RATE_LIMIT_WINDOW`).
+
+### `PUT /comentarios/{id}` — 200 [implementado]
+
+Edita el comentario propio. Cuerpo: `{ "texto": string }` (mismas reglas que al crear). Devuelve `Comentario` con `editadoAt` y `respuestas: []` (volver a pedir el listado si se necesitan las respuestas).
+Errores: 400 `VALIDATION_ERROR` / `TEXTO_INVALIDO`, 403 `NO_ES_AUTOR` (comentario visible de otra persona; los administradores tampoco editan texto ajeno), 404 `COMENTARIO_NO_ENCONTRADO` (no existe, esta eliminado o es un comentario en revision de otro usuario), 429 `DEMASIADOS_INTENTOS`.
+
+### `DELETE /comentarios/{id}` — 204 [implementado]
+
+Borrado blando del comentario propio (el texto se vacia y se descartan sus reportes). Si tenia respuestas, el listado lo sigue devolviendo como `eliminado: true` sin texto ni autor.
+Errores: 403 `NO_ES_AUTOR`, 404 `COMENTARIO_NO_ENCONTRADO`.
 
 ---
 

@@ -5,6 +5,7 @@ import co.edu.atlas.auth.usuario.UsuarioRepository;
 import co.edu.atlas.comentario.Comentario;
 import co.edu.atlas.comentario.ComentarioRepository;
 import co.edu.atlas.comentario.EstadoComentario;
+import co.edu.atlas.comentario.ReporteComentarioRepository;
 import co.edu.atlas.comentario.TextoComentario;
 import co.edu.atlas.comentario.dto.ComentarioResponse;
 import co.edu.atlas.common.error.ApiException;
@@ -12,6 +13,7 @@ import co.edu.atlas.common.ratelimit.RateLimiter;
 import co.edu.atlas.common.web.Pagina;
 import co.edu.atlas.ejercicio.EjercicioRepository;
 import co.edu.atlas.ejercicio.EstadoEjercicio;
+import java.time.Clock;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -29,9 +31,18 @@ public class ComentarioService {
     private final EjercicioRepository ejercicios;
     private final UsuarioRepository usuarios;
     private final RateLimiter limiter;
+    private final ReporteComentarioRepository reportes;
+    private final Clock clock;
 
     public ComentarioService(
-            ComentarioRepository comentarios, EjercicioRepository ejercicios, UsuarioRepository usuarios, RateLimiter limiter) {
+            ComentarioRepository comentarios,
+            EjercicioRepository ejercicios,
+            UsuarioRepository usuarios,
+            RateLimiter limiter,
+            ReporteComentarioRepository reportes,
+            Clock clock) {
+        this.reportes = reportes;
+        this.clock = clock;
         this.comentarios = comentarios;
         this.ejercicios = ejercicios;
         this.usuarios = usuarios;
@@ -45,6 +56,33 @@ public class ComentarioService {
         Usuario autor = usuarios.getReferenceById(actorId);
         Comentario c = comentarios.save(new Comentario(ejercicioId, autor, null, limpio, EstadoComentario.PUBLICADO));
         return ComentarioResponse.de(c, actorId, List.of());
+    }
+
+    /** Edita el texto del comentario propio (HU-22). La respuesta no incluye {@code respuestas}. */
+    public ComentarioResponse editar(Long id, String texto, Long actorId) {
+        Comentario c = propio(id, actorId);
+        limitar("comentar", actorId);
+        c.editar(TextoComentario.limpiar(texto), EstadoComentario.PUBLICADO, clock.instant());
+        return ComentarioResponse.de(c, actorId, List.of());
+    }
+
+    /** Borrado blando del comentario propio (HU-23); sus reportes dejan de tener sentido. */
+    public void eliminar(Long id, Long actorId) {
+        Comentario c = propio(id, actorId);
+        c.eliminar(clock.instant());
+        reportes.borrarDeComentario(id);
+    }
+
+    /** Comentario que el usuario puede ver y ademas es suyo; ajeno visible = 403, no visible = 404. */
+    private Comentario propio(Long id, Long actorId) {
+        Comentario c = comentarios
+                .findById(id)
+                .filter(x -> x.visiblePara(actorId))
+                .orElseThrow(() -> ApiException.notFound("COMENTARIO_NO_ENCONTRADO", "El comentario no existe"));
+        if (!c.esDe(actorId)) {
+            throw ApiException.forbidden("NO_ES_AUTOR", "Solo el autor puede modificar este comentario");
+        }
+        return c;
     }
 
     @Transactional(readOnly = true)
