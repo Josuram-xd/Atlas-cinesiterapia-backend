@@ -2,8 +2,11 @@ package co.edu.atlas.metricas.web;
 
 import co.edu.atlas.metricas.Agrupacion;
 import co.edu.atlas.metricas.dto.ResumenMetricasResponse;
+import co.edu.atlas.metricas.dto.TopEjerciciosResponse;
 import co.edu.atlas.metricas.dto.VisitasPeriodoResponse;
 import co.edu.atlas.metricas.service.ConsultaMetricasService;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import java.time.LocalDate;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -37,5 +40,13 @@ public class MetricasAdminController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta,
             @RequestParam(defaultValue = "DIA") Agrupacion agrupacion) {
         return service.visitasPorPeriodo(desde, hasta, agrupacion);
+    }
+
+    @GetMapping("/ejercicios-mas-consultados")
+    public TopEjerciciosResponse masConsultados(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta,
+            @RequestParam(defaultValue = "10") @Min(1) @Max(50) int limite) {
+        return service.masConsultados(desde, hasta, limite);
     }
 }

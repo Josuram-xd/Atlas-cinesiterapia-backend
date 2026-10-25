@@ -35,6 +35,7 @@ Leyenda de estado: **[implementado]** ya existe en el backend; **[planificado]**
 | `POST /metricas/visitas`, `POST /metricas/sesion/ping` | 5.1 | implementado |
 | `GET /admin/metricas` (solo ADMIN) | 5.2 | implementado |
 | `GET /admin/metricas/visitas` | 5.3 | implementado |
+| `GET /admin/metricas/ejercicios-mas-consultados` | 5.4 | implementado |
 
 Los datos semilla (27 regiones y 9 categorias, seccion 3) ya existen en la base desde la task 2.1.
 
@@ -607,6 +608,19 @@ type VisitasPeriodo = {
 
 En SEMANA/MES el primer y ultimo cubo solo cuentan los dias dentro del rango (su `inicio` puede ser anterior a `desde`).
 Errores: 400 `RANGO_INVALIDO` (desde > hasta o mas de 366 dias), 400 `MALFORMED_REQUEST` (falta un parametro, fecha o agrupacion invalida), 403 `ACCESS_DENIED`.
+
+#### `GET /admin/metricas/ejercicios-mas-consultados?desde=&hasta=&limite=10` — 200 [implementado]
+
+Ranking de fichas por visualizaciones (visitas `FICHA`), de mayor a menor; empates por id. `limite` 1–50 (por defecto 10). `desde`/`hasta` opcionales pero juntos (mismas reglas de rango que arriba); sin ellos se usa todo el historico. Solo aparecen fichas **publicadas** con al menos una visualizacion (puede venir menos de `limite`, o vacio).
+
+```ts
+type TopEjercicios = {
+  desde: string | null; hasta: string | null; limite: number;
+  items: { ejercicioId: number; nombre: string; region: RegionRef; categoria: CategoriaRef; visitas: number }[];
+};
+```
+
+Errores: 400 `RANGO_INVALIDO` (solo uno de los dos extremos, desde > hasta, o mas de 366 dias), 400 `VALIDATION_ERROR` (`limite` fuera de 1–50), 403 `ACCESS_DENIED`.
 
 ---
 

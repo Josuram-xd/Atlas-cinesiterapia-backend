@@ -93,7 +93,7 @@ Cada región guarda `svg_id` (id del path en el SVG del front). Sin distinción 
 - [x] 5.1 Entidades `visita` y `sesion_uso`; registro de visitas y ping de sesión (RF_032)
 - [x] 5.2 Acceso restringido a admin al módulo de métricas (HU-30)
 - [x] 5.3 Visitas totales por periodo (HU-31)
-- [ ] 5.4 Ejercicios más consultados (HU-32)
+- [x] 5.4 Ejercicios más consultados (HU-32)
 - [ ] 5.5 Usuarios activos por rol (HU-33)
 - [ ] 5.6 Tiempo promedio de uso por sesión (HU-34)
 
