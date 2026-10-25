@@ -18,7 +18,7 @@ Leyenda de estado: **[implementado]** ya existe en el backend; **[planificado]**
 | Subida de media (`/admin/ejercicios/{id}/media/...`) y campo `media` en `EjercicioAdmin` | 2.4 | implementado |
 | `POST /admin/ejercicios/{id}/publicar`, campo `camposFaltantes` | 2.5 | implementado |
 | Validacion completa de `PUT` en fichas publicadas/archivadas | 2.6 | implementado |
-| `archivar`, `restaurar`, `DELETE` | 2.7 | planificado |
+| `archivar`, `restaurar`, `DELETE` | 2.7 | implementado |
 | `GET /regiones`, `/regiones/{id}/categorias`, `/categorias` | 3.1 | planificado |
 | `GET /ejercicios`, `/ejercicios/{id}`, `/ejercicios/buscar` | 3.2–3.4 | planificado |
 | Cabeceras de cache | 3.5 | planificado |
@@ -355,13 +355,13 @@ Errores: 404; 409 `ESTADO_INVALIDO` (solo se publica desde BORRADOR; se evalua a
 
 **Campos obligatorios para publicar:** `nombre`, `regionId`, `categoriaId`, `objetivoTerapeutico`, `estructurasIntervenidas`, `indicaciones`, `precaucionesContraindicaciones`, `posicionPaciente`, `posicionFisioterapeuta`, `ejecucion`, `comandosVerbales`, `dosificacion.{series,repeticiones,intensidad,tiempo,descanso,frecuencia}`, `media` (al menos 1 imagen o 1 video confirmado), `estudiantesCreadores` (al menos 1), `cohorte`, `profesoraRevisora`. Opcionales: `progresion`, `erroresComunes`. (Los `field` de `fieldErrors` usan estos nombres.)
 
-### `POST /admin/ejercicios/{id}/archivar` — 200
+### `POST /admin/ejercicios/{id}/archivar` — 200 [implementado]
 `PUBLICADO` → `ARCHIVADO`. Devuelve `EjercicioAdmin`. 409 `ESTADO_INVALIDO` si no esta publicada.
 
-### `POST /admin/ejercicios/{id}/restaurar` — 200
+### `POST /admin/ejercicios/{id}/restaurar` — 200 [implementado]
 `ARCHIVADO` → `PUBLICADO`. Devuelve `EjercicioAdmin`. 409 `ESTADO_INVALIDO` si no esta archivada.
 
-### `DELETE /admin/ejercicios/{id}` — 204
+### `DELETE /admin/ejercicios/{id}` — 204 [implementado]
 Borrado blando (`deleted_at`) desde cualquier estado; deja de aparecer en toda la API. El front debe pedir confirmacion (HU-13). 404 si ya estaba eliminada.
 
 ---

@@ -99,6 +99,31 @@ public class EjercicioAdminService {
         return respuesta(ejercicios.saveAndFlush(e));
     }
 
+    @Transactional
+    public EjercicioAdminResponse archivar(Long id, Long actorId) {
+        Ejercicio e = buscar(id);
+        e.archivar(clock.instant());
+        e.registrarEditor(actorId);
+        return respuesta(ejercicios.saveAndFlush(e));
+    }
+
+    @Transactional
+    public EjercicioAdminResponse restaurar(Long id, Long actorId) {
+        Ejercicio e = buscar(id);
+        e.restaurar();
+        e.registrarEditor(actorId);
+        return respuesta(ejercicios.saveAndFlush(e));
+    }
+
+    /** Borrado blando desde cualquier estado: la ficha deja de existir para toda la API. */
+    @Transactional
+    public void eliminar(Long id, Long actorId) {
+        Ejercicio e = buscar(id);
+        e.eliminar(clock.instant());
+        e.registrarEditor(actorId);
+        ejercicios.saveAndFlush(e);
+    }
+
     @Transactional(readOnly = true)
     public Pagina<EjercicioAdminResumen> listar(
             EstadoEjercicio estado, Long regionId, Long categoriaId, String q, int page, int size) {
@@ -120,6 +145,7 @@ public class EjercicioAdminService {
     Ejercicio buscar(Long id) {
         return ejercicios
                 .findById(id)
+                .filter(e -> !e.estaEliminado())
                 .orElseThrow(() -> ApiException.notFound("EJERCICIO_NO_ENCONTRADO", "La ficha no existe"));
     }
 

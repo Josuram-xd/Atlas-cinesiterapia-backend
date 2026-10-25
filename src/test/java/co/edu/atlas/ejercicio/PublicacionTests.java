@@ -11,24 +11,6 @@ import org.junit.jupiter.api.Test;
 
 class PublicacionTests extends ApiIntegrationTest {
 
-    /** Sube y confirma una imagen para la ficha. */
-    private void agregarImagen(Usuario admin, long ficha) throws Exception {
-        Map<String, Object> s = new LinkedHashMap<>();
-        s.put("tipo", "IMAGEN");
-        s.put("rol", "POSICION_INICIAL");
-        s.put("contentType", "image/png");
-        s.put("tamanoBytes", 1000);
-        long media = cuerpo(mvc.perform(jsonDe(
-                                org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post(
-                                        "/admin/ejercicios/" + ficha + "/media/subida"),
-                                admin, s))
-                        .andReturn())
-                .get("mediaId")
-                .asLong();
-        mvc.perform(postReq("/admin/ejercicios/" + ficha + "/media/" + media + "/confirmar", admin))
-                .andExpect(status().isOk());
-    }
-
     @Test
     void publishesACompleteSheet() throws Exception {
         Usuario admin = admin();

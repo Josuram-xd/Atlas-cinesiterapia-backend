@@ -158,6 +158,7 @@ public class MediaService {
     private Ejercicio exigirFicha(Long ejercicioId) {
         return ejercicios
                 .findById(ejercicioId)
+                .filter(e -> !e.estaEliminado())
                 .orElseThrow(() -> ApiException.notFound("EJERCICIO_NO_ENCONTRADO", "La ficha no existe"));
     }
 

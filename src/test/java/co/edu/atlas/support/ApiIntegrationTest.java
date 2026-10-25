@@ -132,6 +132,28 @@ public abstract class ApiIntegrationTest {
         return cuerpo(r).get("id").asLong();
     }
 
+    /** Sube y confirma una imagen (el almacenamiento fake da por subido el archivo). */
+    protected long agregarImagen(Usuario admin, long ficha) throws Exception {
+        Map<String, Object> s = new LinkedHashMap<>();
+        s.put("tipo", "IMAGEN");
+        s.put("rol", "POSICION_INICIAL");
+        s.put("contentType", "image/png");
+        s.put("tamanoBytes", 1000);
+        MvcResult subida = mvc.perform(jsonDe(post("/admin/ejercicios/" + ficha + "/media/subida"), admin, s))
+                .andReturn();
+        long media = cuerpo(subida).get("mediaId").asLong();
+        mvc.perform(postReq("/admin/ejercicios/" + ficha + "/media/" + media + "/confirmar", admin)).andReturn();
+        return media;
+    }
+
+    /** Ficha completa con una imagen, ya publicada. */
+    protected long crearPublicada(Usuario admin, String nombre) throws Exception {
+        long id = crearBorrador(admin, fichaCompleta(nombre));
+        agregarImagen(admin, id);
+        mvc.perform(postReq("/admin/ejercicios/" + id + "/publicar", admin)).andReturn();
+        return id;
+    }
+
     protected MockHttpServletRequestBuilder getReq(String url, Usuario u) {
         return autenticado(get(url), u);
     }

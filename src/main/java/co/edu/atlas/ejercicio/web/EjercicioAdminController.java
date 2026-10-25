@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -62,6 +63,22 @@ public class EjercicioAdminController {
     @PostMapping("/{id}/publicar")
     public EjercicioAdminResponse publicar(@PathVariable Long id, @AuthenticationPrincipal AuthenticatedUser actual) {
         return service.publicar(id, actual.id());
+    }
+
+    @PostMapping("/{id}/archivar")
+    public EjercicioAdminResponse archivar(@PathVariable Long id, @AuthenticationPrincipal AuthenticatedUser actual) {
+        return service.archivar(id, actual.id());
+    }
+
+    @PostMapping("/{id}/restaurar")
+    public EjercicioAdminResponse restaurar(@PathVariable Long id, @AuthenticationPrincipal AuthenticatedUser actual) {
+        return service.restaurar(id, actual.id());
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void eliminar(@PathVariable Long id, @AuthenticationPrincipal AuthenticatedUser actual) {
+        service.eliminar(id, actual.id());
     }
 
     @PutMapping("/{id}")
