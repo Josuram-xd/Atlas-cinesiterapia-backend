@@ -61,7 +61,7 @@ Cada región guarda `svg_id` (id del path en el SVG del front). Sin distinción 
 - [x] 1.8 Seed del primer administrador desde variables de entorno + endpoint para promover a admin
 
 ## Fase 2 — Catálogo y fichas (HU-04 a HU-15)
-- [ ] 2.1 Migraciones y entidades `region_anatomica`, `categoria_terapeutica` + seed
+- [x] 2.1 Migraciones y entidades `region_anatomica`, `categoria_terapeutica` + seed
 - [ ] 2.2 Migración y entidad `ejercicio` con estado BORRADOR/PUBLICADO/ARCHIVADO y metadatos académicos
 - [ ] 2.3 Crear y actualizar ficha en borrador, validación mínima (HU-04 a HU-07, HU-09, HU-10)
 - [ ] 2.4 Entidad `media` y subida a R2 con URL prefirmada, validación de tipo/tamaño (HU-08)
