@@ -33,6 +33,7 @@ Leyenda de estado: **[implementado]** ya existe en el backend; **[planificado]**
 | `POST /admin/comentarios/{id}/aceptar`, `DELETE /admin/comentarios/{id}` | 4.8 | implementado |
 | `/admin/palabras-ofensivas` (CRUD) | 4.9 | implementado |
 | `POST /metricas/visitas`, `POST /metricas/sesion/ping` | 5.1 | implementado |
+| `GET /admin/metricas` (solo ADMIN) | 5.2 | implementado |
 
 Los datos semilla (27 regiones y 9 categorias, seccion 3) ya existen en la base desde la task 2.1.
 
@@ -578,6 +579,18 @@ type Sesion = { sesionId: number; nuevaSesion: boolean; inicio: string; ultimoPi
 ```
 
 La duracion de una sesion es `ultimoPing - inicio`. Pings con menos de 5 s de separacion no actualizan la sesion.
+
+### Metricas agregadas (solo ADMIN)
+
+Todo `/admin/metricas/**` exige rol `ADMIN` (401 sin token, 403 `ACCESS_DENIED` para el resto). Los endpoints de agregacion solo devuelven totales y rankings por ficha; nunca datos individuales de usuarios. Nada de esto se cachea (`no-store`). Las fechas son dias UTC (`AAAA-MM-DD`).
+
+#### `GET /admin/metricas` — 200 [implementado]
+
+Resumen para las tarjetas del panel.
+
+```ts
+type ResumenMetricas = { visitasTotales: number; visitasUltimos30Dias: number; sesionesTotales: number };
+```
 
 ---
 
