@@ -29,6 +29,9 @@ public class RefreshToken {
     @Column(name = "revoked_at")
     private Instant revokedAt;
 
+    @Column(name = "cierre_pendiente_hasta")
+    private Instant cierrePendienteHasta;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
@@ -57,6 +60,17 @@ public class RefreshToken {
         if (revokedAt == null) {
             revokedAt = ahora;
         }
+    }
+
+    /** Marca el cierre pendiente; si ya habia uno programado se conserva el primero. */
+    public void programarCierre(Instant hasta) {
+        if (cierrePendienteHasta == null) {
+            cierrePendienteHasta = hasta;
+        }
+    }
+
+    public boolean cierreVencido(Instant ahora) {
+        return cierrePendienteHasta != null && ahora.isAfter(cierrePendienteHasta);
     }
 
     public Long getId() {

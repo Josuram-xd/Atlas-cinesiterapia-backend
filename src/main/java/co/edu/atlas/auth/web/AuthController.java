@@ -65,6 +65,12 @@ public class AuthController {
         return auth.refrescar(request.refreshToken());
     }
 
+    @PostMapping("/cierre-pendiente")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void cierrePendiente(@Valid @RequestBody RefreshRequest request) {
+        auth.programarCierre(request.refreshToken());
+    }
+
     @PostMapping("/logout")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void logout(@Valid @RequestBody RefreshRequest request) {

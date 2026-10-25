@@ -30,6 +30,7 @@ app:
   auth:
     frontend-url: ${FRONTEND_URL:http://localhost:5173}
     reset-ttl: ${RESET_TTL:30m}
+    close-grace: ${CLOSE_GRACE:60s}
   cors:
     allowed-origins: ${CORS_ORIGINS:http://localhost:5173}
 

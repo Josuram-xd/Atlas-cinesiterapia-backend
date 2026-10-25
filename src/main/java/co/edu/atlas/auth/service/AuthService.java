@@ -1,5 +1,6 @@
 package co.edu.atlas.auth.service;
 
+import co.edu.atlas.auth.AuthProperties;
 import co.edu.atlas.auth.dto.LoginRequest;
 import co.edu.atlas.auth.dto.TokenResponse;
 import co.edu.atlas.auth.dto.UsuarioResponse;
@@ -28,6 +29,7 @@ public class AuthService {
     private final PasswordEncoder encoder;
     private final JwtService jwt;
     private final JwtProperties props;
+    private final AuthProperties authProps;
     private final Clock clock;
 
     public AuthService(
@@ -36,12 +38,14 @@ public class AuthService {
             PasswordEncoder encoder,
             JwtService jwt,
             JwtProperties props,
+            AuthProperties authProps,
             Clock clock) {
         this.usuarios = usuarios;
         this.refreshTokens = refreshTokens;
         this.encoder = encoder;
         this.jwt = jwt;
         this.props = props;
+        this.authProps = authProps;
         this.clock = clock;
         this.hashFalso = encoder.encode("contrasena-inexistente");
     }
@@ -66,6 +70,9 @@ public class AuthService {
             refreshTokens.revocarTodosDe(actual.getUsuarioId(), ahora);
             throw refreshInvalido();
         }
+        if (actual.cierreVencido(ahora)) {
+            throw ApiException.unauthorized("SESION_EXPIRADA", "Tu sesion expiro, vuelve a iniciar sesion");
+        }
         if (actual.haExpirado(ahora)) {
             throw refreshInvalido();
         }
@@ -77,6 +84,16 @@ public class AuthService {
     @Transactional
     public void logout(String refreshToken) {
         refreshTokens.findByTokenHash(Tokens.hash(refreshToken)).ifPresent(t -> t.revocar(clock.instant()));
+    }
+
+    /** Inicia el periodo de gracia: si no hay refresh dentro de ese plazo, la sesion queda invalida. */
+    @Transactional
+    public void programarCierre(String refreshToken) {
+        Instant ahora = clock.instant();
+        refreshTokens
+                .findByTokenHash(Tokens.hash(refreshToken))
+                .filter(t -> !t.estaRevocado() && !t.haExpirado(ahora))
+                .ifPresent(t -> t.programarCierre(ahora.plus(authProps.closeGrace())));
     }
 
     @Transactional(readOnly = true)
