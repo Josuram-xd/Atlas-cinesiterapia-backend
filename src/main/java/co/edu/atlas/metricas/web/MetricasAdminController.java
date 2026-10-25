@@ -2,6 +2,7 @@ package co.edu.atlas.metricas.web;
 
 import co.edu.atlas.metricas.Agrupacion;
 import co.edu.atlas.metricas.dto.ResumenMetricasResponse;
+import co.edu.atlas.metricas.dto.TiempoPromedioResponse;
 import co.edu.atlas.metricas.dto.TopEjerciciosResponse;
 import co.edu.atlas.metricas.dto.UsuariosActivosResponse;
 import co.edu.atlas.metricas.dto.VisitasPeriodoResponse;
@@ -56,5 +57,12 @@ public class MetricasAdminController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta) {
         return service.usuariosActivosPorRol(desde, hasta);
+    }
+
+    @GetMapping("/tiempo-promedio")
+    public TiempoPromedioResponse tiempoPromedio(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta) {
+        return service.tiempoPromedio(desde, hasta);
     }
 }

@@ -19,6 +19,7 @@ class AccesoMetricasTests extends ApiIntegrationTest {
         "/admin/metricas/visitas?desde=2026-01-01&hasta=2026-01-31",
         "/admin/metricas/ejercicios-mas-consultados",
         "/admin/metricas/usuarios-activos",
+        "/admin/metricas/tiempo-promedio",
     };
 
     @Autowired

@@ -37,6 +37,7 @@ Leyenda de estado: **[implementado]** ya existe en el backend; **[planificado]**
 | `GET /admin/metricas/visitas` | 5.3 | implementado |
 | `GET /admin/metricas/ejercicios-mas-consultados` | 5.4 | implementado |
 | `GET /admin/metricas/usuarios-activos` | 5.5 | implementado |
+| `GET /admin/metricas/tiempo-promedio` | 5.6 | implementado |
 
 Los datos semilla (27 regiones y 9 categorias, seccion 3) ya existen en la base desde la task 2.1.
 
@@ -554,7 +555,7 @@ Errores: 400 `VALIDATION_ERROR`, 400 `PALABRA_INVALIDA` (menos de 3 letras tras 
 
 ---
 
-## 9. Metricas de uso [en construccion, fase 5]
+## 9. Metricas de uso [implementado, fase 5]
 
 ### Registro de actividad (cualquier usuario autenticado)
 
@@ -636,6 +637,22 @@ type UsuariosActivos = {
 ```
 
 Errores: 400 `RANGO_INVALIDO`, 403 `ACCESS_DENIED`.
+
+#### `GET /admin/metricas/tiempo-promedio?desde=&hasta=` — 200 [implementado]
+
+Tiempo promedio por sesion (HU-34). Promedia la duracion (`ultimoPing - inicio`) de las sesiones **iniciadas** en el periodo que tienen duracion registrada (al menos dos pings). Incluye el mismo calculo para el periodo anterior de igual longitud, para el indicador de tendencia. `desde`/`hasta` opcionales pero juntos; por defecto los ultimos 30 dias.
+
+```ts
+type TiempoPromedio = {
+  desde: string; hasta: string;
+  sesiones: number;                       // sesiones con duracion registrada en el periodo
+  promedioSegundos?: number;              // ausente si no hay datos: mostrar "no hay datos suficientes"
+  anterior: { desde: string; hasta: string; sesiones: number; promedioSegundos?: number };
+  variacionPorcentaje?: number;           // (actual - anterior) / anterior * 100, 1 decimal; ausente si falta alguno
+};
+```
+
+Errores: 400 `RANGO_INVALIDO`, 403 `ACCESS_DENIED`. El tiempo total de una sesion no incluye lo que el usuario hace despues de su ultimo ping: el front debe enviar el ping periodicamente (cada ~60 s) para que la medida sea fiel.
 
 ---
 

@@ -11,6 +11,7 @@ import co.edu.atlas.metricas.SesionUsoRepository;
 import co.edu.atlas.metricas.UsuariosActivosRepository;
 import co.edu.atlas.metricas.VisitaRepository;
 import co.edu.atlas.metricas.dto.ResumenMetricasResponse;
+import co.edu.atlas.metricas.dto.TiempoPromedioResponse;
 import co.edu.atlas.metricas.dto.TopEjerciciosResponse;
 import co.edu.atlas.metricas.dto.UsuariosActivosResponse;
 import co.edu.atlas.metricas.dto.VisitasPeriodoResponse;
@@ -19,6 +20,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.time.DayOfWeek;
 import java.util.ArrayList;
@@ -140,6 +142,40 @@ public class ConsultaMetricasService {
             porRol.add(new UsuariosActivosResponse.PorRol(rol, n));
         }
         return new UsuariosActivosResponse(periodo.desde(), periodo.hasta(), total, porRol);
+    }
+
+    /**
+     * Tiempo promedio por sesion (HU-34) de las sesiones iniciadas en el periodo con duracion registrada, y el
+     * mismo dato del periodo anterior (misma longitud, inmediatamente antes) para la tendencia.
+     */
+    public TiempoPromedioResponse tiempoPromedio(LocalDate desde, LocalDate hasta) {
+        Periodo actual = periodoOPorDefecto(desde, hasta);
+        long dias = ChronoUnit.DAYS.between(actual.desde(), actual.hasta()) + 1;
+        LocalDate anteriorHasta = actual.desde().minusDays(1);
+        LocalDate anteriorDesde = anteriorHasta.minusDays(dias - 1);
+        long[] hoy = promedio(actual.desde(), actual.hasta());
+        long[] antes = promedio(anteriorDesde, anteriorHasta);
+        Long promedioActual = hoy[0] == 0 ? null : hoy[1];
+        Long promedioAnterior = antes[0] == 0 ? null : antes[1];
+        Double variacion = promedioActual == null || promedioAnterior == null
+                ? null
+                : Math.round((promedioActual - promedioAnterior) * 1000.0 / promedioAnterior) / 10.0;
+        return new TiempoPromedioResponse(
+                actual.desde(),
+                actual.hasta(),
+                hoy[0],
+                promedioActual,
+                new TiempoPromedioResponse.Anterior(anteriorDesde, anteriorHasta, antes[0], promedioAnterior),
+                variacion);
+    }
+
+    /** [sesiones, promedio redondeado en segundos] de las sesiones iniciadas en el rango de fechas UTC. */
+    private long[] promedio(LocalDate desde, LocalDate hasta) {
+        Instant inicio = desde.atStartOfDay(ZoneOffset.UTC).toInstant();
+        Instant finExclusivo = hasta.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant();
+        Object[] fila = sesiones.promedioDuracion(inicio, finExclusivo).get(0);
+        long total = (Long) fila[1];
+        return new long[] {total, total == 0 ? 0 : Math.round(((Number) fila[0]).doubleValue())};
     }
 
     /** Ambos extremos o ninguno; sin extremos, los ultimos {@value #DIAS_RESUMEN} dias. */
