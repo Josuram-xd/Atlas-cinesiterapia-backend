@@ -8,6 +8,7 @@ import co.edu.atlas.comentario.EstadoComentario;
 import co.edu.atlas.comentario.ReporteComentarioRepository;
 import co.edu.atlas.comentario.TextoComentario;
 import co.edu.atlas.comentario.dto.ComentarioResponse;
+import co.edu.atlas.comentario.filtro.FiltroOfensivoService;
 import co.edu.atlas.common.error.ApiException;
 import co.edu.atlas.common.ratelimit.RateLimiter;
 import co.edu.atlas.common.web.Pagina;
@@ -33,6 +34,7 @@ public class ComentarioService {
     private final RateLimiter limiter;
     private final ReporteComentarioRepository reportes;
     private final Clock clock;
+    private final FiltroOfensivoService filtro;
 
     public ComentarioService(
             ComentarioRepository comentarios,
@@ -40,7 +42,9 @@ public class ComentarioService {
             UsuarioRepository usuarios,
             RateLimiter limiter,
             ReporteComentarioRepository reportes,
-            Clock clock) {
+            Clock clock,
+            FiltroOfensivoService filtro) {
+        this.filtro = filtro;
         this.reportes = reportes;
         this.clock = clock;
         this.comentarios = comentarios;
@@ -54,7 +58,7 @@ public class ComentarioService {
         exigirFichaPublicada(ejercicioId);
         String limpio = TextoComentario.limpiar(texto);
         Usuario autor = usuarios.getReferenceById(actorId);
-        Comentario c = comentarios.save(new Comentario(ejercicioId, autor, null, limpio, EstadoComentario.PUBLICADO));
+        Comentario c = comentarios.save(new Comentario(ejercicioId, autor, null, limpio, filtro.estadoPara(limpio)));
         return ComentarioResponse.de(c, actorId, List.of());
     }
 
@@ -80,7 +84,7 @@ public class ComentarioService {
         String limpio = TextoComentario.limpiar(texto);
         Usuario autor = usuarios.getReferenceById(actorId);
         Comentario r = comentarios.save(
-                new Comentario(raiz.getEjercicioId(), autor, raiz.getId(), limpio, EstadoComentario.PUBLICADO));
+                new Comentario(raiz.getEjercicioId(), autor, raiz.getId(), limpio, filtro.estadoPara(limpio)));
         return ComentarioResponse.de(r, actorId, List.of());
     }
 
@@ -88,7 +92,8 @@ public class ComentarioService {
     public ComentarioResponse editar(Long id, String texto, Long actorId) {
         Comentario c = propio(id, actorId);
         limitar("comentar", actorId);
-        c.editar(TextoComentario.limpiar(texto), EstadoComentario.PUBLICADO, clock.instant());
+        String limpio = TextoComentario.limpiar(texto);
+        c.editar(limpio, filtro.estadoPara(limpio), clock.instant());
         return ComentarioResponse.de(c, actorId, List.of());
     }
 
