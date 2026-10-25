@@ -36,7 +36,11 @@ final class FichaMapper {
         return new UsuarioRef(id, u == null ? null : u.getCorreo());
     }
 
+    /** Devuelve {@code null} si la ficha no tiene ningun dato de dosificacion (borradores). */
     static DosificacionDto dosificacion(Dosificacion d) {
+        if (d == null || d.estaVacia()) {
+            return null;
+        }
         return new DosificacionDto(
                 d.getSeries(), d.getRepeticiones(), d.getIntensidad(), d.getTiempo(), d.getDescanso(), d.getFrecuencia());
     }

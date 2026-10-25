@@ -261,7 +261,7 @@ interface Ejercicio {                 // ficha completa (HU-02)
   posicionFisioterapeuta: string;
   ejecucion: string;
   comandosVerbales: string;
-  dosificacion: Dosificacion;
+  dosificacion: Dosificacion | null;  // null si la ficha no tiene ningún dato de dosificación (solo borradores; las publicadas siempre la traen completa)
   progresion: string | null;
   erroresComunes: string | null;
   estudiantesCreadores: string[];
@@ -319,6 +319,9 @@ interface EjercicioAdmin {                   // respuesta de toda operacion admi
   id: number;
   estado: 'BORRADOR' | 'PUBLICADO' | 'ARCHIVADO';
   // ...mismos campos de contenido que Ejercicio (con null/[] si faltan; region y categoria como objetos)
+  // dosificacion: la clave siempre viene; vale `null` (no un objeto con campos null) si la ficha no tiene ningun dato
+  //   de dosificacion. Si hay al menos un campo, viene el objeto completo con `null` en los que falten.
+  //   estudiantesCreadores: [] si no hay; progresion/erroresComunes: null si no hay.
   media: MediaAdmin[];                       // todas las confirmadas, video primero
   creadoPor:       { id: number; correo: string };
   actualizadoPor:  { id: number; correo: string } | null;
