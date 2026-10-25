@@ -29,6 +29,7 @@ Leyenda de estado: **[implementado]** ya existe en el backend; **[planificado]**
 | `POST /comentarios/{id}/respuestas` | 4.4 | implementado |
 | Filtro de ofensivas (estado `EN_REVISION`, campo `enRevision`) | 4.5 | implementado |
 | `POST /comentarios/{id}/reportes` | 4.6 | implementado |
+| `GET /admin/comentarios/revision` | 4.7 | implementado |
 
 Los datos semilla (27 regiones y 9 categorias, seccion 3) ya existen en la base desde la task 2.1.
 
@@ -496,6 +497,28 @@ Mostrar al autor el comentario atenuado, con icono de advertencia y el mensaje "
 
 Sin cuerpo (no se pide motivo). Devuelve `{ "comentarioId": number }`. El comentario reportado **sigue visible** para todos mientras un administrador lo revisa; pasa a la cola de revision (task 4.7). Un usuario solo puede reportar una vez cada comentario y nunca el propio.
 Errores: 403 `REPORTE_PROPIO`, 404 `COMENTARIO_NO_ENCONTRADO` (inexistente, eliminado o en revision de otro usuario), 409 `YA_REPORTADO`, 429 `DEMASIADOS_INTENTOS`.
+
+### Moderacion (solo ADMIN)
+
+```ts
+type ComentarioRevision = {
+  id: number;
+  padreId: number | null;
+  ejercicio: { id: number; nombre: string | null };    // nombre null si la ficha fue eliminada
+  autor: { id: number; correo: string; rolPerfil: RolPerfil };   // el correo completo solo lo ven admins
+  texto: string;
+  estado: "PUBLICADO" | "EN_REVISION";
+  ocultadoAutomaticamente: boolean;   // true = filtro automatico ("ocultado automaticamente")
+  totalReportes: number;              // > 0 = "reportado por usuarios"
+  createdAt: string;
+  editadoAt: string | null;
+};
+```
+
+### `GET /admin/comentarios/revision?tipo=&page=0&size=20` — 200 [implementado]
+
+`Pagina<ComentarioRevision>`, el mas antiguo primero. `tipo`: `OCULTADOS` (estado `EN_REVISION`), `REPORTADOS` (con al menos un reporte) o ausente (ambos). Un comentario puede ser ambos. Los eliminados no aparecen. Pagina vacia = "no hay comentarios pendientes de revision".
+Errores: 400 `VALIDATION_ERROR` / `MALFORMED_REQUEST` (tipo o paginacion invalidos), 403 `ACCESS_DENIED`.
 
 ---
 

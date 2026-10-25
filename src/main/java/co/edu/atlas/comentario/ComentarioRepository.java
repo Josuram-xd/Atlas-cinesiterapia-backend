@@ -39,6 +39,18 @@ public interface ComentarioRepository extends JpaRepository<Comentario, Long> {
     @EntityGraph(attributePaths = "autor")
     List<Comentario> respuestasVisibles(@Param("padres") Collection<Long> padres, @Param("viewerId") Long viewerId);
 
+    String EN_COLA = "(:ocultados = true and c.estado = co.edu.atlas.comentario.EstadoComentario.EN_REVISION) "
+            + "or (:reportados = true and c.estado <> co.edu.atlas.comentario.EstadoComentario.ELIMINADO "
+            + "and exists (select r.id from ReporteComentario r where r.comentarioId = c.id))";
+
+    /** Cola de revision del admin: ocultados por el filtro y/o con reportes, el mas antiguo primero. */
+    @Query(
+            value = "select c from Comentario c where " + EN_COLA + " order by c.createdAt asc, c.id asc",
+            countQuery = "select count(c) from Comentario c where " + EN_COLA)
+    @EntityGraph(attributePaths = "autor")
+    Page<Comentario> colaRevision(
+            @Param("ocultados") boolean ocultados, @Param("reportados") boolean reportados, Pageable pageable);
+
     @Override
     @EntityGraph(attributePaths = "autor")
     Optional<Comentario> findById(Long id);
