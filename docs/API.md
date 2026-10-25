@@ -31,6 +31,7 @@ Leyenda de estado: **[implementado]** ya existe en el backend; **[planificado]**
 | `POST /comentarios/{id}/reportes` | 4.6 | implementado |
 | `GET /admin/comentarios/revision` | 4.7 | implementado |
 | `POST /admin/comentarios/{id}/aceptar`, `DELETE /admin/comentarios/{id}` | 4.8 | implementado |
+| `/admin/palabras-ofensivas` (CRUD) | 4.9 | implementado |
 
 Los datos semilla (27 regiones y 9 categorias, seccion 3) ya existen en la base desde la task 2.1.
 
@@ -435,7 +436,7 @@ Los medios en estado pendiente que nunca se confirman no se muestran ni cuentan.
 
 ---
 
-## 8. Comentarios [en construccion, fase 4]
+## 8. Comentarios y moderacion [implementado, fase 4]
 
 Disponible para cualquier usuario autenticado. Los comentarios son **texto plano**: el front debe renderizarlos como texto (nunca como HTML). El backend elimina caracteres de control e invisibles y rechaza cualquier etiqueta HTML (`TEXTO_INVALIDO`).
 
@@ -530,6 +531,21 @@ Errores: 403 `ACCESS_DENIED`, 404 `COMENTARIO_NO_ENCONTRADO` (inexistente o ya e
 
 Elimina cualquier comentario (publicado, en revision o reportado): borrado blando, se vacia el texto y se descartan los reportes. Si tenia respuestas, el listado lo muestra como "comentario eliminado". Desaparece de la ficha y de la cola.
 Errores: 403 `ACCESS_DENIED`, 404 `COMENTARIO_NO_ENCONTRADO`.
+
+### Palabras ofensivas (solo ADMIN)
+
+La lista vive en la base (seed inicial de ~20 entradas). Cada entrada se guarda tal como se escribio (`palabra`) y se compara en forma normalizada (minusculas, sin tildes, sustituciones aplicadas, solo letras y espacios; se admiten frases como `hijo de puta`). Los cambios aplican de inmediato.
+
+```ts
+type Palabra = { id: number; palabra: string; createdAt: string };
+```
+
+- `GET /admin/palabras-ofensivas?q=&page=0&size=20` — 200 `Pagina<Palabra>`, orden alfabetico; `q` filtra (sin tildes ni mayusculas). [implementado]
+- `POST /admin/palabras-ofensivas` — 201, cuerpo `{ "palabra": string }` (max 60). [implementado]
+- `PUT /admin/palabras-ofensivas/{id}` — 200, cuerpo `{ "palabra": string }`. [implementado]
+- `DELETE /admin/palabras-ofensivas/{id}` — 204 (borrado definitivo). [implementado]
+
+Errores: 400 `VALIDATION_ERROR`, 400 `PALABRA_INVALIDA` (menos de 3 letras tras normalizar), 403 `ACCESS_DENIED`, 404 `PALABRA_NO_ENCONTRADA`, 409 `PALABRA_DUPLICADA` (misma forma normalizada). Cambiar la lista no re-evalua comentarios ya publicados.
 
 ---
 
