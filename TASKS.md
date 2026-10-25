@@ -79,7 +79,7 @@ Cada región guarda `svg_id` (id del path en el SVG del front). Sin distinción 
 - [x] 3.5 Cabeceras de caché (ETag / Cache-Control) para ayudar al modo offline
 
 ## Fase 4 — Comentarios y moderación (HU-21 a HU-29)
-- [ ] 4.1 Entidades `comentario` y `reporte_comentario`, hilos de un nivel
+- [x] 4.1 Entidades `comentario` y `reporte_comentario`, hilos de un nivel
 - [ ] 4.2 Crear y listar comentarios publicados (HU-21)
 - [ ] 4.3 Editar y eliminar comentario propio (HU-22, HU-23)
 - [ ] 4.4 Responder a un comentario (HU-29)
