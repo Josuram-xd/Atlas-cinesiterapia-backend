@@ -82,7 +82,7 @@ Cada región guarda `svg_id` (id del path en el SVG del front). Sin distinción 
 - [x] 4.1 Entidades `comentario` y `reporte_comentario`, hilos de un nivel
 - [x] 4.2 Crear y listar comentarios publicados (HU-21)
 - [x] 4.3 Editar y eliminar comentario propio (HU-22, HU-23)
-- [ ] 4.4 Responder a un comentario (HU-29)
+- [x] 4.4 Responder a un comentario (HU-29)
 - [ ] 4.5 Filtro de contenido ofensivo (normaliza acentos y sustituciones) → estado EN_REVISION; el autor ve su comentario atenuado (HU-24)
 - [ ] 4.6 Reportar comentario (HU-25)
 - [ ] 4.7 Cola de revisión para admin: ocultados + reportados (HU-26)

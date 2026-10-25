@@ -58,6 +58,32 @@ public class ComentarioService {
         return ComentarioResponse.de(c, actorId, List.of());
     }
 
+    /**
+     * Responde a un comentario (HU-29). Hilos de un nivel: responder a una respuesta se aplana y la nueva respuesta
+     * cuelga de la raiz del hilo. El comentario respondido debe ser visible para el usuario y la raiz estar publicada.
+     */
+    public ComentarioResponse responder(Long comentarioId, String texto, Long actorId) {
+        limitar("comentar", actorId);
+        Comentario objetivo = comentarios
+                .findById(comentarioId)
+                .filter(x -> x.visiblePara(actorId))
+                .orElseThrow(() -> ApiException.notFound("COMENTARIO_NO_ENCONTRADO", "El comentario no existe"));
+        Comentario raiz = objetivo.esRespuesta()
+                ? comentarios
+                        .findById(objetivo.getPadreId())
+                        .orElseThrow(() -> ApiException.notFound("COMENTARIO_NO_ENCONTRADO", "El comentario no existe"))
+                : objetivo;
+        if (objetivo.getEstado() != EstadoComentario.PUBLICADO || raiz.getEstado() != EstadoComentario.PUBLICADO) {
+            throw ApiException.conflict("COMENTARIO_NO_RESPONDIBLE", "Solo se pueden responder comentarios publicados");
+        }
+        exigirFichaPublicada(raiz.getEjercicioId());
+        String limpio = TextoComentario.limpiar(texto);
+        Usuario autor = usuarios.getReferenceById(actorId);
+        Comentario r = comentarios.save(
+                new Comentario(raiz.getEjercicioId(), autor, raiz.getId(), limpio, EstadoComentario.PUBLICADO));
+        return ComentarioResponse.de(r, actorId, List.of());
+    }
+
     /** Edita el texto del comentario propio (HU-22). La respuesta no incluye {@code respuestas}. */
     public ComentarioResponse editar(Long id, String texto, Long actorId) {
         Comentario c = propio(id, actorId);

@@ -26,6 +26,7 @@ Leyenda de estado: **[implementado]** ya existe en el backend; **[planificado]**
 | Cabeceras de cache (ETag / Cache-Control) | 3.5 | implementado |
 | `GET/POST /ejercicios/{id}/comentarios` | 4.2 | implementado |
 | `PUT/DELETE /comentarios/{id}` (propio) | 4.3 | implementado |
+| `POST /comentarios/{id}/respuestas` | 4.4 | implementado |
 
 Los datos semilla (27 regiones y 9 categorias, seccion 3) ya existen en la base desde la task 2.1.
 
@@ -478,6 +479,11 @@ Errores: 400 `VALIDATION_ERROR` / `TEXTO_INVALIDO`, 403 `NO_ES_AUTOR` (comentari
 
 Borrado blando del comentario propio (el texto se vacia y se descartan sus reportes). Si tenia respuestas, el listado lo sigue devolviendo como `eliminado: true` sin texto ni autor.
 Errores: 403 `NO_ES_AUTOR`, 404 `COMENTARIO_NO_ENCONTRADO`.
+
+### `POST /comentarios/{id}/respuestas` — 201 [implementado]
+
+Responde al comentario `{id}`. Cuerpo: `{ "texto": string }`. Devuelve la `Comentario` creada (con `padreId`). **Decision de diseno: los hilos son de un nivel y responder a una respuesta se aplana**: la nueva respuesta cuelga del comentario raiz del hilo (el front puede anteponer "@nombre" al texto si quiere). Las respuestas pasan por las mismas reglas de texto que los comentarios.
+Errores: 400 `VALIDATION_ERROR` / `TEXTO_INVALIDO`, 404 `COMENTARIO_NO_ENCONTRADO` (inexistente, eliminado o en revision de otro usuario), 409 `COMENTARIO_NO_RESPONDIBLE` (el comentario o su raiz no esta publicado, p. ej. tu propio comentario en revision), 404 `EJERCICIO_NO_ENCONTRADO` (ficha ya no publicada), 429 `DEMASIADOS_INTENTOS`.
 
 ---
 
