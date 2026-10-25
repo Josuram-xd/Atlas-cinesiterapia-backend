@@ -58,7 +58,7 @@ Cada región guarda `svg_id` (id del path en el SVG del front). Sin distinción 
 - [x] 1.5 Recuperar contraseña: token de un solo uso con expiración + correo (HU-18)
 - [x] 1.6 Cierre pendiente con periodo de gracia de 60 s: `POST /auth/cierre-pendiente`, cancelado por refresh (HU-19)
 - [x] 1.7 Rate limit en login y registro
-- [ ] 1.8 Seed del primer administrador desde variables de entorno + endpoint para promover a admin
+- [x] 1.8 Seed del primer administrador desde variables de entorno + endpoint para promover a admin
 
 ## Fase 2 — Catálogo y fichas (HU-04 a HU-15)
 - [ ] 2.1 Migraciones y entidades `region_anatomica`, `categoria_terapeutica` + seed

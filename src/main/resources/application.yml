@@ -34,6 +34,9 @@ app:
   rate-limit:
     max-requests: ${RATE_LIMIT_MAX:10}
     window: ${RATE_LIMIT_WINDOW:1m}
+  admin:
+    email: ${ADMIN_EMAIL:}
+    password: ${ADMIN_PASSWORD:}
   cors:
     allowed-origins: ${CORS_ORIGINS:http://localhost:5173}
 

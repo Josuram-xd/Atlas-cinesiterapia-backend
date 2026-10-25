@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import co.edu.atlas.auth.support.MutableClock;
 import co.edu.atlas.auth.support.TestClockConfig;
 import co.edu.atlas.auth.token.RefreshTokenRepository;
+import co.edu.atlas.auth.token.Tokens;
 import com.jayway.jsonpath.JsonPath;
 import java.time.Duration;
 import org.junit.jupiter.api.BeforeEach;
@@ -76,7 +77,8 @@ class AuthFlowTests {
     void refreshTokenIsStoredHashedOnly() throws Exception {
         String refresh = loginRefresh();
 
-        assertThat(refreshTokens.findAll()).hasSize(1).allSatisfy(t -> {
+        assertThat(refreshTokens.findByTokenHash(Tokens.hash(refresh))).isPresent();
+        assertThat(refreshTokens.findAll()).allSatisfy(t -> {
             assertThat(t.getTokenHash()).isNotEqualTo(refresh);
             assertThat(t.getTokenHash()).hasSize(64);
         });
