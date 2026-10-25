@@ -34,7 +34,7 @@ class RateLimitFilterTests {
     MutableClock clock;
 
     private ResultActions enviar(String url, String ip) throws Exception {
-        return mvc.perform(post(url)
+        return mvc.perform(post(java.net.URI.create(url))
                 .with(r -> {
                     r.setRemoteAddr(ip);
                     return r;
@@ -54,6 +54,17 @@ class RateLimitFilterTests {
                 .andExpect(status().isTooManyRequests())
                 .andExpect(header().string("Retry-After", "60"))
                 .andExpect(jsonPath("$.code").value("DEMASIADOS_INTENTOS"));
+    }
+
+    @Test
+    void percentEncodedPathDoesNotBypassTheLimit() throws Exception {
+        String ip = "10.0.0.7";
+        for (int i = 0; i < 3; i++) {
+            enviar("/auth/%6Cogin", ip).andExpect(status().isUnauthorized());
+        }
+
+        enviar("/auth/login", ip).andExpect(status().isTooManyRequests());
+        enviar("/auth/%6Cogin", ip).andExpect(status().isTooManyRequests());
     }
 
     @Test

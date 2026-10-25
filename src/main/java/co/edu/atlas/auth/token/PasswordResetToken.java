@@ -45,6 +45,10 @@ public class PasswordResetToken {
         createdAt = Instant.now();
     }
 
+    public Long getId() {
+        return id;
+    }
+
     public boolean esUtilizable(Instant ahora) {
         return usedAt == null && expiresAt.isAfter(ahora);
     }

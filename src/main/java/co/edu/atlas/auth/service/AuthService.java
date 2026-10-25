@@ -77,7 +77,11 @@ public class AuthService {
             throw refreshInvalido();
         }
         Usuario usuario = usuarios.findById(actual.getUsuarioId()).filter(Usuario::isActivo).orElseThrow(AuthService::refreshInvalido);
-        actual.revocar(ahora);
+        if (refreshTokens.revocarSiVigente(actual.getId(), ahora) == 0) {
+            // Otra peticion uso el mismo token a la vez: se trata como reutilizacion.
+            refreshTokens.revocarTodosDe(actual.getUsuarioId(), ahora);
+            throw refreshInvalido();
+        }
         return emitirTokens(usuario);
     }
 

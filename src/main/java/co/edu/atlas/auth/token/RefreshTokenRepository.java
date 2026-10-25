@@ -11,6 +11,11 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long
 
     Optional<RefreshToken> findByTokenHash(String tokenHash);
 
+    /** Revoca solo si sigue vigente: devuelve 0 si otra peticion ya lo uso (atomico, evita bifurcar la sesion). */
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("update RefreshToken t set t.revokedAt = :ahora where t.id = :id and t.revokedAt is null")
+    int revocarSiVigente(@Param("id") Long id, @Param("ahora") Instant ahora);
+
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("update RefreshToken t set t.revokedAt = :ahora where t.usuarioId = :usuarioId and t.revokedAt is null")
     int revocarTodosDe(@Param("usuarioId") Long usuarioId, @Param("ahora") Instant ahora);
