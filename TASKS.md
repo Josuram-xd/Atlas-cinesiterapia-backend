@@ -76,7 +76,7 @@ Cada región guarda `svg_id` (id del path en el SVG del front). Sin distinción 
 - [x] 3.2 `GET /ejercicios?region&categoria` solo publicados (HU-01)
 - [x] 3.3 `GET /ejercicios/{id}` ficha completa con media (HU-02)
 - [x] 3.4 `GET /ejercicios/buscar?q=` con índice `pg_trgm` y búsqueda sin acentos (HU-03)
-- [ ] 3.5 Cabeceras de caché (ETag / Cache-Control) para ayudar al modo offline
+- [x] 3.5 Cabeceras de caché (ETag / Cache-Control) para ayudar al modo offline
 
 ## Fase 4 — Comentarios y moderación (HU-21 a HU-29)
 - [ ] 4.1 Entidades `comentario` y `reporte_comentario`, hilos de un nivel

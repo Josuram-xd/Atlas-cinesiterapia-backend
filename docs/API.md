@@ -23,7 +23,7 @@ Leyenda de estado: **[implementado]** ya existe en el backend; **[planificado]**
 | `GET /ejercicios?region&categoria` | 3.2 | implementado |
 | `GET /ejercicios/{id}` | 3.3 | implementado |
 | `GET /ejercicios/buscar?q=` | 3.4 | implementado |
-| Cabeceras de cache | 3.5 | planificado |
+| Cabeceras de cache (ETag / Cache-Control) | 3.5 | implementado |
 
 Los datos semilla (27 regiones y 9 categorias, seccion 3) ya existen en la base desde la task 2.1.
 
@@ -418,11 +418,12 @@ Los medios en estado pendiente que nunca se confirman no se muestran ni cuentan.
 
 ---
 
-## 7. Cache para modo offline [planificado, task 3.5]
+## 7. Cache para modo offline [implementado, task 3.5]
 
 - Catalogos (`/regiones`, `/regiones/{id}/categorias`, `/categorias`): `Cache-Control: private, max-age=3600` + `ETag`.
 - Atlas (`/ejercicios`, `/ejercicios/{id}`, `/ejercicios/buscar`): `Cache-Control: private, max-age=0, must-revalidate` + `ETag`. El navegador/service worker revalida con `If-None-Match` y recibe `304` si no cambio.
-- `/admin/**` y `/auth/**`: nunca se cachean (`no-store`).
+- `/admin/**` y `/auth/**`: nunca se cachean (`no-store`). Las respuestas de error tampoco (`no-store`, sin ETag).
+- El `ETag` es debil y se calcula sobre el cuerpo: si cambia cualquier dato de la respuesta (incluida una `url` de media prefirmada y temporal) cambia el ETag. Con `R2_PUBLIC_BASE_URL` configurado las `url` son estables y el `304` funciona tambien en `GET /ejercicios/{id}`; sin el, la ficha rara vez devolvera 304 (las imagenes ya cargadas si pueden seguir cacheadas por su propia URL).
 - Todas las respuestas cacheables llevan `Vary: Authorization`.
 
 ---
