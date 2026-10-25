@@ -79,6 +79,13 @@ public class AuthService {
         refreshTokens.findByTokenHash(Tokens.hash(refreshToken)).ifPresent(t -> t.revocar(clock.instant()));
     }
 
+    @Transactional(readOnly = true)
+    public UsuarioResponse perfil(Long usuarioId) {
+        return usuarios.findById(usuarioId)
+                .map(UsuarioResponse::de)
+                .orElseThrow(() -> ApiException.unauthorized("NO_AUTENTICADO", "Debes iniciar sesion"));
+    }
+
     private boolean credencialesValidas(Usuario usuario, String password) {
         if (usuario == null) {
             encoder.matches(password, hashFalso);

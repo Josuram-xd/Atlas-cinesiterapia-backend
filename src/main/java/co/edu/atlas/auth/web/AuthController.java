@@ -8,7 +8,10 @@ import co.edu.atlas.auth.dto.UsuarioResponse;
 import co.edu.atlas.auth.service.AuthService;
 import co.edu.atlas.auth.service.RegistroService;
 import jakarta.validation.Valid;
+import co.edu.atlas.auth.security.AuthenticatedUser;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,6 +29,11 @@ public class AuthController {
     public AuthController(RegistroService registro, AuthService auth) {
         this.registro = registro;
         this.auth = auth;
+    }
+
+    @GetMapping("/me")
+    public UsuarioResponse me(@AuthenticationPrincipal AuthenticatedUser actual) {
+        return auth.perfil(actual.id());
     }
 
     @PostMapping("/login")

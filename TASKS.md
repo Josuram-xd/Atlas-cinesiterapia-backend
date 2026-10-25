@@ -54,7 +54,7 @@ Cada región guarda `svg_id` (id del path en el SVG del front). Sin distinción 
 - [x] 1.1 Migración y entidad `usuario` (correo único, hash, rol de perfil, rol de sistema)
 - [x] 1.2 `POST /auth/registro` con rol de perfil (HU-17)
 - [x] 1.3 `POST /auth/login`, `/auth/refresh`, `/auth/logout` con JWT y refresh rotativo (HU-16)
-- [ ] 1.4 Filtro de seguridad, `@PreAuthorize` por rol, todo protegido salvo auth
+- [x] 1.4 Filtro de seguridad, `@PreAuthorize` por rol, todo protegido salvo auth
 - [ ] 1.5 Recuperar contraseña: token de un solo uso con expiración + correo (HU-18)
 - [ ] 1.6 Cierre pendiente con periodo de gracia de 60 s: `POST /auth/cierre-pendiente`, cancelado por refresh (HU-19)
 - [ ] 1.7 Rate limit en login y registro
