@@ -9,6 +9,8 @@ spring:
         sslmode: require
 
 app:
+  jwt:
+    secret: ${JWT_SECRET}
   cors:
     allowed-origins: ${CORS_ORIGINS}
 
