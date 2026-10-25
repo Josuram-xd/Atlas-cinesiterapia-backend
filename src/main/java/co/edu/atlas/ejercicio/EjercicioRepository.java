@@ -3,6 +3,7 @@ package co.edu.atlas.ejercicio;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,4 +22,8 @@ public interface EjercicioRepository extends JpaRepository<Ejercicio, Long>, Jpa
     @Override
     @EntityGraph(attributePaths = {"region", "categoria"})
     Page<Ejercicio> findAll(Specification<Ejercicio> spec, Pageable pageable);
+
+    @Override
+    @EntityGraph(attributePaths = {"region", "categoria"})
+    List<Ejercicio> findAll(Specification<Ejercicio> spec, Sort sort);
 }

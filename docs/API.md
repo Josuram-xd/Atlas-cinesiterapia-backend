@@ -20,7 +20,9 @@ Leyenda de estado: **[implementado]** ya existe en el backend; **[planificado]**
 | Validacion completa de `PUT` en fichas publicadas/archivadas | 2.6 | implementado |
 | `archivar`, `restaurar`, `DELETE` | 2.7 | implementado |
 | `GET /regiones`, `/regiones/{id}/categorias`, `/categorias` | 3.1 | implementado |
-| `GET /ejercicios`, `/ejercicios/{id}`, `/ejercicios/buscar` | 3.2–3.4 | planificado |
+| `GET /ejercicios?region&categoria` | 3.2 | implementado |
+| `GET /ejercicios/{id}` | 3.3 | planificado |
+| `GET /ejercicios/buscar?q=` | 3.4 | planificado |
 | Cabeceras de cache | 3.5 | planificado |
 
 Los datos semilla (27 regiones y 9 categorias, seccion 3) ya existen en la base desde la task 2.1.
@@ -258,7 +260,7 @@ interface Ejercicio {                 // ficha completa (HU-02)
 ```
 
 ### `GET /ejercicios?region={id}&categoria={id}` — 200
-`EjercicioResumen[]` publicados, ordenados por nombre. Ambos filtros son opcionales y combinables; sin filtros devuelve todos. Lista vacia `[]` = estado vacio (HU-01). 400 `MALFORMED_REQUEST` si un id no es numerico.
+`EjercicioResumen[]` publicados, ordenados por nombre (`region` incluye tambien `vista`). Ambos filtros son opcionales y combinables; sin filtros devuelve todos. Lista vacia `[]` = estado vacio (HU-01). 400 `MALFORMED_REQUEST` si un id no es numerico.
 
 ### `GET /ejercicios/{id}` — 200
 `Ejercicio`. 404 `EJERCICIO_NO_ENCONTRADO` si no existe o no esta publicado. Cabecera `ETag` (ver 7).
