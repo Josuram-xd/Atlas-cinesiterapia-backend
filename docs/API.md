@@ -28,6 +28,7 @@ Leyenda de estado: **[implementado]** ya existe en el backend; **[planificado]**
 | `PUT/DELETE /comentarios/{id}` (propio) | 4.3 | implementado |
 | `POST /comentarios/{id}/respuestas` | 4.4 | implementado |
 | Filtro de ofensivas (estado `EN_REVISION`, campo `enRevision`) | 4.5 | implementado |
+| `POST /comentarios/{id}/reportes` | 4.6 | implementado |
 
 Los datos semilla (27 regiones y 9 categorias, seccion 3) ya existen en la base desde la task 2.1.
 
@@ -490,6 +491,11 @@ Errores: 400 `VALIDATION_ERROR` / `TEXTO_INVALIDO`, 404 `COMENTARIO_NO_ENCONTRAD
 
 Al crear, editar o responder, el texto se compara con una lista de palabras ofensivas guardada en la base. La comparacion ignora mayusculas y tildes, aplica sustituciones (`4`→a, `3`→e, `0`→o, `1`→i, `5`→s, `7`→t, `@`→a, `$`→s), tolera separadores entre letras (`p.u.t.a`, `p u t a`, `p-u-t-a`) y letras repetidas (`puuuuta`), y busca palabra completa (no marca "reputacion"). Si hay coincidencia el comentario queda `EN_REVISION`: la respuesta `201`/`200` ya trae `estado: "EN_REVISION"` y `enRevision: true`, y el comentario solo se devuelve a su autor (los demas no lo ven ni como contador). Una edicion limpia vuelve a `PUBLICADO`; una edicion ofensiva lo oculta de nuevo.
 Mostrar al autor el comentario atenuado, con icono de advertencia y el mensaje "esperando revision" cuando `enRevision` sea true.
+
+### `POST /comentarios/{id}/reportes` — 201 [implementado]
+
+Sin cuerpo (no se pide motivo). Devuelve `{ "comentarioId": number }`. El comentario reportado **sigue visible** para todos mientras un administrador lo revisa; pasa a la cola de revision (task 4.7). Un usuario solo puede reportar una vez cada comentario y nunca el propio.
+Errores: 403 `REPORTE_PROPIO`, 404 `COMENTARIO_NO_ENCONTRADO` (inexistente, eliminado o en revision de otro usuario), 409 `YA_REPORTADO`, 429 `DEMASIADOS_INTENTOS`.
 
 ---
 
