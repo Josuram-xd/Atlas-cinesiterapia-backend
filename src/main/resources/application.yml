@@ -3,6 +3,21 @@ spring:
     name: atlas-cinesiterapia-backend
   profiles:
     default: dev
+  datasource:
+    # Neon: jdbc:postgresql://<host>/<db>?sslmode=require (ver README)
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/atlas}
+    username: ${DB_USER:atlas}
+    password: ${DB_PASSWORD:atlas}
+    hikari:
+      # Pool pequeno: el plan free de Neon limita conexiones y suspende por inactividad.
+      maximum-pool-size: ${DB_POOL_SIZE:5}
+      minimum-idle: 1
+      connection-timeout: 10000
+      idle-timeout: 120000
+      max-lifetime: 600000
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
   jpa:
     open-in-view: false
     hibernate:

@@ -1,4 +1,13 @@
 # Perfil de produccion: sin valores por defecto inseguros; todo viene del entorno.
+spring:
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    hikari:
+      data-source-properties:
+        sslmode: require
+
 app:
   cors:
     allowed-origins: ${CORS_ORIGINS}
