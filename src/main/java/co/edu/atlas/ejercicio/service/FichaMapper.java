@@ -11,6 +11,8 @@ import co.edu.atlas.ejercicio.dto.EjercicioAdminResponse;
 import co.edu.atlas.ejercicio.dto.EjercicioAdminResumen;
 import co.edu.atlas.ejercicio.dto.RegionRef;
 import co.edu.atlas.ejercicio.dto.UsuarioRef;
+import co.edu.atlas.media.dto.MediaAdminResponse;
+import java.util.List;
 import java.util.Map;
 
 /** Conversiones entre entidades y DTOs de fichas. */
@@ -45,14 +47,15 @@ final class FichaMapper {
                 usuario(usuarios, e.getCreadoPor()), e.getUpdatedAt());
     }
 
-    static EjercicioAdminResponse admin(Ejercicio e, Map<Long, Usuario> usuarios) {
+    static EjercicioAdminResponse admin(
+            Ejercicio e, Map<Long, Usuario> usuarios, List<MediaAdminResponse> media) {
         return new EjercicioAdminResponse(
                 e.getId(), e.getEstado(), e.getNombre(), region(e.getRegion()), categoria(e.getCategoria()),
                 e.getObjetivoTerapeutico(), e.getEstructurasIntervenidas(), e.getIndicaciones(),
                 e.getPrecaucionesContraindicaciones(), e.getPosicionPaciente(), e.getPosicionFisioterapeuta(),
                 e.getEjecucion(), e.getComandosVerbales(), dosificacion(e.getDosificacion()), e.getProgresion(),
                 e.getErroresComunes(), e.getEstudiantesCreadores(), e.getCohorte(), e.getProfesoraRevisora(),
-                usuario(usuarios, e.getCreadoPor()), usuario(usuarios, e.getActualizadoPor()), e.getCreatedAt(),
+                media, usuario(usuarios, e.getCreadoPor()), usuario(usuarios, e.getActualizadoPor()), e.getCreatedAt(),
                 e.getUpdatedAt(), e.getPublicadoAt(), e.getArchivadoAt(), e.getVersion());
     }
 }

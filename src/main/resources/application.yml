@@ -39,6 +39,19 @@ app:
     password: ${ADMIN_PASSWORD:}
   cors:
     allowed-origins: ${CORS_ORIGINS:http://localhost:5173}
+  media:
+    # fake: sin red (dev y tests). r2: Cloudflare R2 con URL prefirmada (credenciales solo por entorno).
+    proveedor: ${MEDIA_PROVIDER:fake}
+    subida-ttl: ${MEDIA_UPLOAD_TTL:10m}
+    lectura-ttl: ${MEDIA_READ_TTL:1h}
+    # Si el bucket se expone con dominio publico (recomendado: URLs estables y cacheables), p. ej. https://media.midominio.com
+    public-base-url: ${R2_PUBLIC_BASE_URL:}
+    r2:
+      endpoint: ${R2_ENDPOINT:}
+      access-key: ${R2_ACCESS_KEY_ID:}
+      secret-key: ${R2_SECRET_ACCESS_KEY:}
+      bucket: ${R2_BUCKET:}
+      region: ${R2_REGION:auto}
 
 springdoc:
   api-docs:

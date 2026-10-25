@@ -15,7 +15,7 @@ Leyenda de estado: **[implementado]** ya existe en el backend; **[planificado]**
 |---|---|---|
 | `/auth/*`, `/admin/usuarios/{id}/promover` | 1.x | implementado |
 | `POST /admin/ejercicios`, `GET /admin/ejercicios`, `GET /admin/ejercicios/{id}`, `PUT /admin/ejercicios/{id}` (validacion minima) | 2.3 | implementado |
-| Subida de media (`/admin/ejercicios/{id}/media/...`) | 2.4 | planificado |
+| Subida de media (`/admin/ejercicios/{id}/media/...`) y campo `media` en `EjercicioAdmin` | 2.4 | implementado |
 | `POST /admin/ejercicios/{id}/publicar` y validacion de PUT en fichas publicadas | 2.5, 2.6 | planificado |
 | `archivar`, `restaurar`, `DELETE` | 2.7 | planificado |
 | `GET /regiones`, `/regiones/{id}/categorias`, `/categorias` | 3.1 | planificado |
@@ -308,7 +308,7 @@ interface EjercicioAdmin {                   // respuesta de toda operacion admi
   camposFaltantes: string[];                 // lo que falta para poder publicar ([] = lista para publicar)
   version: number;
 }
-interface MediaAdmin extends Media { estado: 'CONFIRMADO' }
+interface MediaAdmin extends Media { estado: 'CONFIRMADO' | 'PENDIENTE' }
 
 interface EjercicioAdminResumen {
   id: number; nombre: string; estado: string;
@@ -365,7 +365,7 @@ Borrado blando (`deleted_at`) desde cualquier estado; deja de aparecer en toda l
 
 ---
 
-## 6. Multimedia [planificado, task 2.4]
+## 6. Multimedia [implementado, task 2.4]
 
 Los archivos **no pasan por el backend**: se suben directo a Cloudflare R2 con una URL prefirmada (flujo de 3 pasos).
 
@@ -396,13 +396,15 @@ Reglas (el backend las valida en el paso 1, y R2 las hace cumplir con la firma):
   "expiraEn": "2026-10-25T14:40:00Z"   // la URL vive 10 min
 }
 ```
-Errores: 404 `EJERCICIO_NO_ENCONTRADO`; 400 `VALIDATION_ERROR`; 400 `MEDIA_TIPO_NO_SOPORTADO` (el mensaje lista los formatos admitidos); 400 `MEDIA_DEMASIADO_GRANDE`; 409 `MEDIA_LIMITE_ALCANZADO`.
+Errores: 404 `EJERCICIO_NO_ENCONTRADO`; 400 `VALIDATION_ERROR`; 400 `MEDIA_TIPO_NO_SOPORTADO` (el mensaje lista los formatos admitidos); 400 `MEDIA_DEMASIADO_GRANDE`; 400 `MEDIA_ROL_REQUERIDO` (imagen sin `rol`); 409 `MEDIA_LIMITE_ALCANZADO` (las subidas pendientes recientes, de menos de 10 min, tambien cuentan).
 
 ### Paso 2 — subir el archivo a R2
-`PUT {urlSubida}` con el archivo crudo como cuerpo y **exactamente** las `cabeceras` indicadas (el `Content-Length` real debe coincidir con `tamanoBytes`). Sin `Authorization` de la API. Si falla la firma, pedir una subida nueva.
+`PUT {urlSubida}` con el archivo crudo como cuerpo y **exactamente** las `cabeceras` indicadas (el `Content-Length` real debe coincidir con `tamanoBytes`). Sin `Authorization` de la API. Si falla la firma o vence la URL, pedir una subida nueva. El bucket de R2 debe tener CORS que permita `PUT` desde el origen del front con la cabecera `Content-Type`.
+
+> En desarrollo (`MEDIA_PROVIDER=fake`, por defecto) `urlSubida` apunta a un dominio ficticio: el front puede **omitir el paso 2** y confirmar directamente; el backend da por subido el archivo.
 
 ### Paso 3 — `POST /admin/ejercicios/{id}/media/{mediaId}/confirmar` — 200
-Sin cuerpo. El backend verifica que el objeto exista en el almacenamiento y marca el medio `CONFIRMADO`; solo entonces cuenta para publicar y aparece en la ficha. Devuelve `MediaAdmin`. Errores: 404 `MEDIA_NO_ENCONTRADA`; 409 `MEDIA_NO_SUBIDA` (el archivo no esta en el almacenamiento).
+Sin cuerpo. El backend verifica que el objeto exista en el almacenamiento y marca el medio `CONFIRMADO`; solo entonces cuenta para publicar y aparece en la ficha. Devuelve `MediaAdmin`. Errores: 404 `MEDIA_NO_ENCONTRADA`; 409 `MEDIA_NO_SUBIDA` (el archivo no esta en el almacenamiento); 409 `MEDIA_TAMANO_INVALIDO` (el tamano real no coincide con el declarado: el medio se descarta y hay que pedir una subida nueva). Confirmar un medio ya confirmado devuelve 200 igual.
 
 ### `DELETE /admin/ejercicios/{id}/media/{mediaId}` — 204
 Elimina el medio y su objeto. Errores: 404 `MEDIA_NO_ENCONTRADA`; 409 `MEDIA_REQUERIDA` (no se puede quitar el ultimo medio de una ficha publicada o archivada).

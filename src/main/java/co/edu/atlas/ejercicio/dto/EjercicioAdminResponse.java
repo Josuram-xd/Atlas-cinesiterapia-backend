@@ -1,6 +1,7 @@
 package co.edu.atlas.ejercicio.dto;
 
 import co.edu.atlas.ejercicio.EstadoEjercicio;
+import co.edu.atlas.media.dto.MediaAdminResponse;
 import java.time.Instant;
 import java.util.List;
 
@@ -25,6 +26,7 @@ public record EjercicioAdminResponse(
         List<String> estudiantesCreadores,
         String cohorte,
         String profesoraRevisora,
+        List<MediaAdminResponse> media,
         UsuarioRef creadoPor,
         UsuarioRef actualizadoPor,
         Instant creadoEn,

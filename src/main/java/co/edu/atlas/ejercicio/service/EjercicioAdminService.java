@@ -18,6 +18,7 @@ import co.edu.atlas.ejercicio.dto.DosificacionDto;
 import co.edu.atlas.ejercicio.dto.EjercicioAdminResponse;
 import co.edu.atlas.ejercicio.dto.EjercicioAdminResumen;
 import co.edu.atlas.ejercicio.dto.EjercicioRequest;
+import co.edu.atlas.media.service.MediaService;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -38,16 +39,19 @@ public class EjercicioAdminService {
     private final RegionAnatomicaRepository regiones;
     private final CategoriaTerapeuticaRepository categorias;
     private final UsuarioRepository usuarios;
+    private final MediaService media;
 
     public EjercicioAdminService(
             EjercicioRepository ejercicios,
             RegionAnatomicaRepository regiones,
             CategoriaTerapeuticaRepository categorias,
-            UsuarioRepository usuarios) {
+            UsuarioRepository usuarios,
+            MediaService media) {
         this.ejercicios = ejercicios;
         this.regiones = regiones;
         this.categorias = categorias;
         this.usuarios = usuarios;
+        this.media = media;
     }
 
     @Transactional
@@ -92,7 +96,7 @@ public class EjercicioAdminService {
         if (e.getActualizadoPor() != null) {
             ids.add(e.getActualizadoPor());
         }
-        return FichaMapper.admin(e, usuariosDe(ids));
+        return FichaMapper.admin(e, usuariosDe(ids), media.listarConfirmados(e.getId()));
     }
 
     private Map<Long, Usuario> usuariosDe(Collection<Long> ids) {

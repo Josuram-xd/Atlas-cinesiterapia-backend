@@ -43,6 +43,11 @@ Copia `.env.example` a `.env` (ignorado por git) como referencia. Spring Boot le
 | `RATE_LIMIT_MAX` / `RATE_LIMIT_WINDOW` | Intentos por ventana en login, registro, recuperar y restablecer | `10` / `1m` |
 | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Seed del primer administrador (opcional, clave min. 8) | vacio |
 | `SPRINGDOC_ENABLED` | Habilita Swagger UI y `/v3/api-docs` | `true` en dev, `false` en prod |
+| `MEDIA_PROVIDER` | Almacenamiento de archivos: `fake` (sin red) o `r2` (Cloudflare R2) | `fake` en dev, `r2` en prod |
+| `R2_ENDPOINT` / `R2_BUCKET` | Endpoint S3 de la cuenta (`https://<cuenta>.r2.cloudflarestorage.com`) y bucket | vacio |
+| `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` | Credenciales del token de API de R2 (solo por entorno, nunca en git) | vacio |
+| `R2_PUBLIC_BASE_URL` | Dominio publico del bucket (URLs de lectura estables); si falta se firman URLs de lectura temporales | vacio |
+| `MEDIA_UPLOAD_TTL` / `MEDIA_READ_TTL` | Vigencia de las URLs prefirmadas de subida y lectura | `10m` / `1h` |
 
 En el perfil `prod` no hay valores por defecto para `DATABASE_URL`, `DB_USER`, `DB_PASSWORD` ni `CORS_ORIGINS`, y la conexion exige SSL (`sslmode=require`).
 
