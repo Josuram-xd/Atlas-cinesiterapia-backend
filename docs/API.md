@@ -9,6 +9,23 @@ Leyenda de estado: **[implementado]** ya existe en el backend; **[planificado]**
 - Nombres de campos en espanol y `camelCase`. Enumeraciones en `MAYUSCULAS_CON_GUION_BAJO`.
 - Swagger UI (solo dev): `/swagger-ui.html`, esquema en `/v3/api-docs`.
 
+## Estado de implementacion por endpoint
+
+| Endpoint | Task | Estado |
+|---|---|---|
+| `/auth/*`, `/admin/usuarios/{id}/promover` | 1.x | implementado |
+| `POST /admin/ejercicios`, `GET /admin/ejercicios`, `GET /admin/ejercicios/{id}`, `PUT /admin/ejercicios/{id}` (validacion minima) | 2.3 | implementado |
+| Subida de media (`/admin/ejercicios/{id}/media/...`) | 2.4 | planificado |
+| `POST /admin/ejercicios/{id}/publicar` y validacion de PUT en fichas publicadas | 2.5, 2.6 | planificado |
+| `archivar`, `restaurar`, `DELETE` | 2.7 | planificado |
+| `GET /regiones`, `/regiones/{id}/categorias`, `/categorias` | 3.1 | planificado |
+| `GET /ejercicios`, `/ejercicios/{id}`, `/ejercicios/buscar` | 3.2–3.4 | planificado |
+| Cabeceras de cache | 3.5 | planificado |
+
+Los datos semilla (27 regiones y 9 categorias, seccion 3) ya existen en la base desde la task 2.1.
+
+---
+
 ## 1. Convenciones generales
 
 ### Autenticacion
