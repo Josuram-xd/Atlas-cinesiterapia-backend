@@ -16,7 +16,8 @@ Leyenda de estado: **[implementado]** ya existe en el backend; **[planificado]**
 | `/auth/*`, `/admin/usuarios/{id}/promover` | 1.x | implementado |
 | `POST /admin/ejercicios`, `GET /admin/ejercicios`, `GET /admin/ejercicios/{id}`, `PUT /admin/ejercicios/{id}` (validacion minima) | 2.3 | implementado |
 | Subida de media (`/admin/ejercicios/{id}/media/...`) y campo `media` en `EjercicioAdmin` | 2.4 | implementado |
-| `POST /admin/ejercicios/{id}/publicar` y validacion de PUT en fichas publicadas | 2.5, 2.6 | planificado |
+| `POST /admin/ejercicios/{id}/publicar`, campo `camposFaltantes` | 2.5 | implementado |
+| Validacion completa de `PUT` en fichas publicadas/archivadas | 2.6 | planificado |
 | `archivar`, `restaurar`, `DELETE` | 2.7 | planificado |
 | `GET /regiones`, `/regiones/{id}/categorias`, `/categorias` | 3.1 | planificado |
 | `GET /ejercicios`, `/ejercicios/{id}`, `/ejercicios/buscar` | 3.2–3.4 | planificado |
@@ -337,9 +338,9 @@ Reemplaza el contenido completo (los campos ausentes o `null` se vacian). Cuerpo
 - `PUBLICADO` / `ARCHIVADO`: ademas exige todos los campos obligatorios para publicar (HU-12); si falta alguno, 422 `FICHA_INCOMPLETA` y no se guarda. La ficha publicada sigue visible durante la edicion.
 Errores: 400 `VALIDATION_ERROR`, `REGION_INVALIDA`, `CATEGORIA_INVALIDA`; 404; 422 `FICHA_INCOMPLETA`.
 
-### `POST /admin/ejercicios/{id}/publicar` — 200
+### `POST /admin/ejercicios/{id}/publicar` — 200 [implementado]
 Sin cuerpo. Pasa `BORRADOR` → `PUBLICADO`. Devuelve `EjercicioAdmin`.
-Errores: 404; 409 `ESTADO_INVALIDO` (solo se publica desde BORRADOR); 422 `FICHA_INCOMPLETA`:
+Errores: 404; 409 `ESTADO_INVALIDO` (solo se publica desde BORRADOR; se evalua antes que la completitud); 422 `FICHA_INCOMPLETA` (`fieldErrors` en el orden de la lista de abajo; `camposFaltantes` del `EjercicioAdmin` trae los mismos nombres para deshabilitar el boton Publicar):
 
 ```json
 {

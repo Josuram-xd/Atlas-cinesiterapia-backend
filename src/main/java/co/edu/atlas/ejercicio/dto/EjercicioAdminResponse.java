@@ -33,4 +33,5 @@ public record EjercicioAdminResponse(
         Instant actualizadoEn,
         Instant publicadoEn,
         Instant archivadoEn,
+        List<String> camposFaltantes,
         long version) {}

@@ -59,6 +59,11 @@ public class EjercicioAdminController {
         return service.obtener(id);
     }
 
+    @PostMapping("/{id}/publicar")
+    public EjercicioAdminResponse publicar(@PathVariable Long id, @AuthenticationPrincipal AuthenticatedUser actual) {
+        return service.publicar(id, actual.id());
+    }
+
     @PutMapping("/{id}")
     public EjercicioAdminResponse actualizar(
             @PathVariable Long id,

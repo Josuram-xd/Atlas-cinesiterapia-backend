@@ -176,6 +176,10 @@ public class Ejercicio {
         this.actualizadoPor = actor;
     }
 
+    public void registrarEditor(Long actor) {
+        this.actualizadoPor = actor;
+    }
+
     public void publicar(Instant ahora) {
         exigir(estado == EstadoEjercicio.BORRADOR, "Solo se puede publicar una ficha en borrador");
         estado = EstadoEjercicio.PUBLICADO;

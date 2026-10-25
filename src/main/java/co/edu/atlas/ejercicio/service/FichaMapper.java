@@ -48,7 +48,7 @@ final class FichaMapper {
     }
 
     static EjercicioAdminResponse admin(
-            Ejercicio e, Map<Long, Usuario> usuarios, List<MediaAdminResponse> media) {
+            Ejercicio e, Map<Long, Usuario> usuarios, List<MediaAdminResponse> media, List<String> camposFaltantes) {
         return new EjercicioAdminResponse(
                 e.getId(), e.getEstado(), e.getNombre(), region(e.getRegion()), categoria(e.getCategoria()),
                 e.getObjetivoTerapeutico(), e.getEstructurasIntervenidas(), e.getIndicaciones(),
@@ -56,6 +56,6 @@ final class FichaMapper {
                 e.getEjecucion(), e.getComandosVerbales(), dosificacion(e.getDosificacion()), e.getProgresion(),
                 e.getErroresComunes(), e.getEstudiantesCreadores(), e.getCohorte(), e.getProfesoraRevisora(),
                 media, usuario(usuarios, e.getCreadoPor()), usuario(usuarios, e.getActualizadoPor()), e.getCreatedAt(),
-                e.getUpdatedAt(), e.getPublicadoAt(), e.getArchivadoAt(), e.getVersion());
+                e.getUpdatedAt(), e.getPublicadoAt(), e.getArchivadoAt(), camposFaltantes, e.getVersion());
     }
 }

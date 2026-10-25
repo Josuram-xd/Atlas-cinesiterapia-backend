@@ -6,6 +6,7 @@ import co.edu.atlas.catalogo.CategoriaTerapeutica;
 import co.edu.atlas.catalogo.CategoriaTerapeuticaRepository;
 import co.edu.atlas.catalogo.RegionAnatomica;
 import co.edu.atlas.catalogo.RegionAnatomicaRepository;
+import co.edu.atlas.common.error.ApiError.FieldViolation;
 import co.edu.atlas.common.error.ApiException;
 import co.edu.atlas.common.web.Pagina;
 import co.edu.atlas.ejercicio.ContenidoFicha;
@@ -14,12 +15,16 @@ import co.edu.atlas.ejercicio.Ejercicio;
 import co.edu.atlas.ejercicio.EjercicioRepository;
 import co.edu.atlas.ejercicio.EstadoEjercicio;
 import co.edu.atlas.ejercicio.FiltroEjercicios;
+import co.edu.atlas.ejercicio.ValidadorPublicacion;
 import co.edu.atlas.ejercicio.dto.DosificacionDto;
 import co.edu.atlas.ejercicio.dto.EjercicioAdminResponse;
 import co.edu.atlas.ejercicio.dto.EjercicioAdminResumen;
 import co.edu.atlas.ejercicio.dto.EjercicioRequest;
+import co.edu.atlas.media.dto.MediaAdminResponse;
 import co.edu.atlas.media.service.MediaService;
+import java.time.Clock;
 import java.util.Collection;
+import java.util.List;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -40,18 +45,21 @@ public class EjercicioAdminService {
     private final CategoriaTerapeuticaRepository categorias;
     private final UsuarioRepository usuarios;
     private final MediaService media;
+    private final Clock clock;
 
     public EjercicioAdminService(
             EjercicioRepository ejercicios,
             RegionAnatomicaRepository regiones,
             CategoriaTerapeuticaRepository categorias,
             UsuarioRepository usuarios,
-            MediaService media) {
+            MediaService media,
+            Clock clock) {
         this.ejercicios = ejercicios;
         this.regiones = regiones;
         this.categorias = categorias;
         this.usuarios = usuarios;
         this.media = media;
+        this.clock = clock;
     }
 
     @Transactional
@@ -74,6 +82,18 @@ public class EjercicioAdminService {
         return respuesta(ejercicios.saveAndFlush(e));
     }
 
+    /** BORRADOR a PUBLICADO. Rechaza con 422 y la lista de campos pendientes si la ficha esta incompleta. */
+    @Transactional
+    public EjercicioAdminResponse publicar(Long id, Long actorId) {
+        Ejercicio e = buscar(id);
+        if (e.getEstado() == EstadoEjercicio.BORRADOR) {
+            exigirCompleta(e);
+        }
+        e.publicar(clock.instant());
+        e.registrarEditor(actorId);
+        return respuesta(ejercicios.saveAndFlush(e));
+    }
+
     @Transactional(readOnly = true)
     public Pagina<EjercicioAdminResumen> listar(
             EstadoEjercicio estado, Long regionId, Long categoriaId, String q, int page, int size) {
@@ -82,6 +102,13 @@ public class EjercicioAdminService {
         Map<Long, Usuario> autores =
                 usuariosDe(resultado.getContent().stream().map(Ejercicio::getCreadoPor).toList());
         return Pagina.de(resultado, e -> FichaMapper.resumen(e, autores));
+    }
+
+    private void exigirCompleta(Ejercicio e) {
+        List<FieldViolation> faltantes = ValidadorPublicacion.camposFaltantes(e, media.contarConfirmados(e.getId()));
+        if (!faltantes.isEmpty()) {
+            throw ApiException.unprocessable("FICHA_INCOMPLETA", "La ficha tiene campos obligatorios pendientes", faltantes);
+        }
     }
 
     Ejercicio buscar(Long id) {
@@ -96,7 +123,11 @@ public class EjercicioAdminService {
         if (e.getActualizadoPor() != null) {
             ids.add(e.getActualizadoPor());
         }
-        return FichaMapper.admin(e, usuariosDe(ids), media.listarConfirmados(e.getId()));
+        List<MediaAdminResponse> medios = media.listarConfirmados(e.getId());
+        List<String> faltantes = ValidadorPublicacion.camposFaltantes(e, medios.size()).stream()
+                .map(FieldViolation::field)
+                .toList();
+        return FichaMapper.admin(e, usuariosDe(ids), medios, faltantes);
     }
 
     private Map<Long, Usuario> usuariosDe(Collection<Long> ids) {
