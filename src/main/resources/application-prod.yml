@@ -1,0 +1,8 @@
+# Perfil de produccion: sin valores por defecto inseguros; todo viene del entorno.
+app:
+  cors:
+    allowed-origins: ${CORS_ORIGINS}
+
+logging:
+  level:
+    root: INFO

@@ -44,7 +44,7 @@ Cada región guarda `svg_id` (id del path en el SVG del front). Sin distinción 
 ---
 
 ## Fase 0 — Fundación
-- [ ] 0.1 Scaffold Spring Boot (Maven, Java 21), perfiles `dev`/`prod`, CORS por variable de entorno
+- [x] 0.1 Scaffold Spring Boot (Maven, Java 21), perfiles `dev`/`prod`, CORS por variable de entorno
 - [ ] 0.2 Conexión a Neon (HikariCP pequeño, SSL), Flyway con migración vacía, `docker-compose` con Postgres para desarrollo local
 - [ ] 0.3 Manejo global de errores (`@ControllerAdvice`), formato de error uniforme, springdoc
 - [ ] 0.4 CI en GitHub Actions: build + tests

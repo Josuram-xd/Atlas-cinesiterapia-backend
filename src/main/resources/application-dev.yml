@@ -1,0 +1,4 @@
+# Perfil de desarrollo local.
+logging:
+  level:
+    co.edu.atlas: DEBUG
