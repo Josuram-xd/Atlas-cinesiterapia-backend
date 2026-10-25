@@ -96,6 +96,57 @@ Todos los errores responden con el mismo JSON:
 }
 ```
 
+## Despliegue
+
+Arquitectura objetivo, usando solo servicios con plan gratuito:
+
+| Pieza | Servicio | Notas |
+|---|---|---|
+| API (este repo) | **Render**, web service Docker, plan free | Se construye con el `Dockerfile` y se configura con `render.yaml` |
+| Base de datos | **Neon** (PostgreSQL) | Se conecta con `sslmode=require`; el perfil `prod` exige SSL |
+| Archivos (medios) | **Cloudflare R2** | Pendiente de integrar en el codigo (tarea 7.2) |
+| Anti-suspension | **UptimeRobot** | Ping periodico a `/actuator/health` |
+
+### 1. Base de datos en Neon
+
+1. Crea un proyecto en Neon y copia el host, el nombre de la base y el usuario.
+2. Arma la URL JDBC: `jdbc:postgresql://<host>/<db>?sslmode=require`.
+
+### 2. Servicio en Render
+
+1. En Render, *New > Blueprint* y selecciona este repositorio (usa `render.yaml`), o crea un *Web Service* con runtime **Docker** y plan **Free**.
+2. Completa las variables marcadas como secretas en el panel de Render (`sync: false`):
+
+| Variable | Valor |
+|---|---|
+| `DATABASE_URL` | URL JDBC de Neon (ver paso 1) |
+| `DB_USER` / `DB_PASSWORD` | Credenciales de Neon |
+| `JWT_SECRET` | Secreto de al menos 32 caracteres, p. ej. `openssl rand -base64 48` |
+| `CORS_ORIGINS` | Origen del frontend, sin barra final (p. ej. `https://<app>.vercel.app`) |
+| `FRONTEND_URL` | Mismo origen del frontend; base de los enlaces de recuperacion |
+| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Opcionales: seed del primer administrador (clave de 8 o mas caracteres) |
+
+`SPRING_PROFILES_ACTIVE=prod`, `SPRINGDOC_ENABLED=false` y `DB_POOL_SIZE=5` ya vienen en el blueprint. `PORT` lo inyecta Render y la aplicacion lo lee automaticamente.
+
+Render usa `/actuator/health` como comprobacion de salud. Ese endpoint es publico (no requiere token) y no expone detalles.
+
+### 3. Verificacion
+
+```bash
+curl https://<servicio>.onrender.com/actuator/health
+# {"status":"UP"}
+```
+
+### 4. Evitar la suspension del plan free
+
+Render suspende los servicios gratuitos tras unos 15 minutos sin trafico, y Neon suspende la base por inactividad. Crea en UptimeRobot un monitor HTTP(s) sobre `https://<servicio>.onrender.com/actuator/health` con intervalo de 5 minutos. Eso reduce, pero no elimina, la latencia del primer arranque.
+
+### Limitaciones actuales
+
+- El rate limit es en memoria: vale para una sola instancia (el plan free ya es una).
+- El envio de correo aun no tiene proveedor configurado; sin el, la recuperacion de contrasena solo escribe en el log.
+- La imagen Docker aun no se ha construido ni probado con `docker build`; hay que verificarlo en el primer despliegue.
+
 ## CI
 
 GitHub Actions (`.github/workflows/ci.yml`) ejecuta `./mvnw verify` en cada push a `main` y en cada pull request.
