@@ -22,7 +22,7 @@ Leyenda de estado: **[implementado]** ya existe en el backend; **[planificado]**
 | `GET /regiones`, `/regiones/{id}/categorias`, `/categorias` | 3.1 | implementado |
 | `GET /ejercicios?region&categoria` | 3.2 | implementado |
 | `GET /ejercicios/{id}` | 3.3 | implementado |
-| `GET /ejercicios/buscar?q=` | 3.4 | planificado |
+| `GET /ejercicios/buscar?q=` | 3.4 | implementado |
 | Cabeceras de cache | 3.5 | planificado |
 
 Los datos semilla (27 regiones y 9 categorias, seccion 3) ya existen en la base desde la task 2.1.
@@ -266,7 +266,7 @@ interface Ejercicio {                 // ficha completa (HU-02)
 `Ejercicio`. 404 `EJERCICIO_NO_ENCONTRADO` si no existe o no esta publicado. Cabecera `ETag` (ver 7).
 
 ### `GET /ejercicios/buscar?q=texto` — 200
-`EjercicioResumen[]` publicados cuyo nombre contiene `q` (parcial, sin distinguir mayusculas ni tildes: `"flexion"` encuentra `"Flexión"`), maximo 50 resultados, ordenados por nombre. `q` vacio o solo espacios, o mas de 100 caracteres: 400 `VALIDATION_ERROR`. Sin coincidencias: `[]`.
+`EjercicioResumen[]` publicados cuyo nombre contiene `q` (parcial, sin distinguir mayusculas ni tildes: `"flexion"` encuentra `"Flexión"`), maximo 50 resultados, ordenados por nombre. `q` vacio, solo espacios o de mas de 100 caracteres: 400 `VALIDATION_ERROR` (si el parametro `q` ni se envia: 400 `MALFORMED_REQUEST`); el front no deberia llamar con texto vacio. Sin coincidencias: `[]`.
 
 ---
 

@@ -66,7 +66,7 @@ docker compose up -d
 ./mvnw verify
 ```
 
-Flyway aplica las migraciones de `src/main/resources/db/migration` al arrancar. Salud del servicio: `GET /actuator/health`.
+Flyway aplica las migraciones de `src/main/resources/db/migration` al arrancar, mas las especificas del motor en `db/vendor/{vendor}` (PostgreSQL crea el indice `pg_trgm` de busqueda; H2, usado solo en tests, un indice simple). Salud del servicio: `GET /actuator/health`.
 
 ## Autenticacion
 

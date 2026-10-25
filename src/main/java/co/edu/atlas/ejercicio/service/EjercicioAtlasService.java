@@ -11,6 +11,7 @@ import co.edu.atlas.media.MediaTipo;
 import co.edu.atlas.media.dto.MediaResponse;
 import co.edu.atlas.media.service.MediaService;
 import java.util.List;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class EjercicioAtlasService {
 
+    static final int MAX_RESULTADOS_BUSQUEDA = 50;
     private static final Sort POR_NOMBRE = Sort.by("nombre").and(Sort.by("id"));
 
     private final EjercicioRepository ejercicios;
@@ -32,6 +34,16 @@ public class EjercicioAtlasService {
 
     public List<EjercicioResumenResponse> listar(Long regionId, Long categoriaId) {
         return ejercicios.findAll(FiltroEjercicios.de(EstadoEjercicio.PUBLICADO, regionId, categoriaId, null), POR_NOMBRE)
+                .stream()
+                .map(EjercicioAtlasService::resumen)
+                .toList();
+    }
+
+    public List<EjercicioResumenResponse> buscar(String q) {
+        return ejercicios
+                .findAll(
+                        FiltroEjercicios.de(EstadoEjercicio.PUBLICADO, null, null, q),
+                        PageRequest.of(0, MAX_RESULTADOS_BUSQUEDA, POR_NOMBRE))
                 .stream()
                 .map(EjercicioAtlasService::resumen)
                 .toList();
