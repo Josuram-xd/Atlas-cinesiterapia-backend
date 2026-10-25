@@ -32,6 +32,7 @@ Leyenda de estado: **[implementado]** ya existe en el backend; **[planificado]**
 | `GET /admin/comentarios/revision` | 4.7 | implementado |
 | `POST /admin/comentarios/{id}/aceptar`, `DELETE /admin/comentarios/{id}` | 4.8 | implementado |
 | `/admin/palabras-ofensivas` (CRUD) | 4.9 | implementado |
+| `POST /metricas/visitas`, `POST /metricas/sesion/ping` | 5.1 | implementado |
 
 Los datos semilla (27 regiones y 9 categorias, seccion 3) ya existen en la base desde la task 2.1.
 
@@ -549,6 +550,37 @@ Errores: 400 `VALIDATION_ERROR`, 400 `PALABRA_INVALIDA` (menos de 3 letras tras 
 
 ---
 
-## 9. Modulos futuros
+## 9. Metricas de uso [en construccion, fase 5]
+
+### Registro de actividad (cualquier usuario autenticado)
+
+El front llama a estos endpoints; no devuelven datos de otros usuarios. Las metricas agregadas son solo para ADMIN (secciones siguientes).
+
+#### `POST /metricas/visitas` — 204 [implementado]
+
+Registra una visita del usuario autenticado con fecha (UTC) y usuario (RF_032). Llamar al abrir la ficha de un ejercicio o la pagina del atlas.
+
+```ts
+type VisitaRequest =
+  | { tipo: "FICHA"; ejercicioId: number }   // ficha publicada
+  | { tipo: "ATLAS" };                        // sin ejercicioId
+```
+
+Una repeticion del mismo usuario al mismo destino en menos de 10 s se ignora (devuelve 204 igualmente), para absorber dobles disparos.
+Errores: 400 `VALIDATION_ERROR` (falta `tipo`), 400 `VISITA_INVALIDA` (FICHA sin `ejercicioId` o ATLAS con `ejercicioId`), 404 `EJERCICIO_NO_ENCONTRADO` (ficha inexistente o no publicada).
+
+#### `POST /metricas/sesion/ping` — 200 [implementado]
+
+Sin cuerpo. Llamar periodicamente mientras el usuario esta activo (sugerido: cada 60 s con la pestana visible). Continua la sesion vigente o abre una nueva si pasaron mas de **30 minutos** desde el ultimo ping.
+
+```ts
+type Sesion = { sesionId: number; nuevaSesion: boolean; inicio: string; ultimoPing: string; duracionSegundos: number };
+```
+
+La duracion de una sesion es `ultimoPing - inicio`. Pings con menos de 5 s de separacion no actualizan la sesion.
+
+---
+
+## 10. Modulos futuros
 
 Moderacion de comentarios y metricas se documentaran aqui al implementarse.
