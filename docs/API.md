@@ -17,7 +17,7 @@ Leyenda de estado: **[implementado]** ya existe en el backend; **[planificado]**
 | `POST /admin/ejercicios`, `GET /admin/ejercicios`, `GET /admin/ejercicios/{id}`, `PUT /admin/ejercicios/{id}` (validacion minima) | 2.3 | implementado |
 | Subida de media (`/admin/ejercicios/{id}/media/...`) y campo `media` en `EjercicioAdmin` | 2.4 | implementado |
 | `POST /admin/ejercicios/{id}/publicar`, campo `camposFaltantes` | 2.5 | implementado |
-| Validacion completa de `PUT` en fichas publicadas/archivadas | 2.6 | planificado |
+| Validacion completa de `PUT` en fichas publicadas/archivadas | 2.6 | implementado |
 | `archivar`, `restaurar`, `DELETE` | 2.7 | planificado |
 | `GET /regiones`, `/regiones/{id}/categorias`, `/categorias` | 3.1 | planificado |
 | `GET /ejercicios`, `/ejercicios/{id}`, `/ejercicios/buscar` | 3.2–3.4 | planificado |
@@ -332,7 +332,7 @@ Query opcionales: `estado`, `regionId`, `categoriaId`, `q` (nombre, sin tildes),
 ### `GET /admin/ejercicios/{id}` — 200
 `EjercicioAdmin`. 404 `EJERCICIO_NO_ENCONTRADO`.
 
-### `PUT /admin/ejercicios/{id}` — 200
+### `PUT /admin/ejercicios/{id}` — 200 [implementado]
 Reemplaza el contenido completo (los campos ausentes o `null` se vacian). Cuerpo `EjercicioRequest`. Devuelve `EjercicioAdmin`.
 - `BORRADOR`: validacion minima.
 - `PUBLICADO` / `ARCHIVADO`: ademas exige todos los campos obligatorios para publicar (HU-12); si falta alguno, 422 `FICHA_INCOMPLETA` y no se guarda. La ficha publicada sigue visible durante la edicion.

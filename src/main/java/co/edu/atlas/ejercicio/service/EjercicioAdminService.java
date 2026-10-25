@@ -78,7 +78,12 @@ public class EjercicioAdminService {
     @Transactional
     public EjercicioAdminResponse actualizar(Long id, EjercicioRequest request, Long actorId) {
         Ejercicio e = buscar(id);
-        e.actualizar(contenido(request), actorId);
+        ContenidoFicha nuevo = contenido(request);
+        if (e.getEstado() != EstadoEjercicio.BORRADOR) {
+            // Una ficha visible (o archivada) nunca puede quedar incompleta (HU-12). Se valida antes de mutar.
+            exigirCompleta(nuevo, e.getId());
+        }
+        e.actualizar(nuevo, actorId);
         return respuesta(ejercicios.saveAndFlush(e));
     }
 
@@ -87,7 +92,7 @@ public class EjercicioAdminService {
     public EjercicioAdminResponse publicar(Long id, Long actorId) {
         Ejercicio e = buscar(id);
         if (e.getEstado() == EstadoEjercicio.BORRADOR) {
-            exigirCompleta(e);
+            exigirCompleta(e.contenido(), e.getId());
         }
         e.publicar(clock.instant());
         e.registrarEditor(actorId);
@@ -104,8 +109,9 @@ public class EjercicioAdminService {
         return Pagina.de(resultado, e -> FichaMapper.resumen(e, autores));
     }
 
-    private void exigirCompleta(Ejercicio e) {
-        List<FieldViolation> faltantes = ValidadorPublicacion.camposFaltantes(e, media.contarConfirmados(e.getId()));
+    private void exigirCompleta(ContenidoFicha contenido, Long ejercicioId) {
+        List<FieldViolation> faltantes =
+                ValidadorPublicacion.camposFaltantes(contenido, media.contarConfirmados(ejercicioId));
         if (!faltantes.isEmpty()) {
             throw ApiException.unprocessable("FICHA_INCOMPLETA", "La ficha tiene campos obligatorios pendientes", faltantes);
         }

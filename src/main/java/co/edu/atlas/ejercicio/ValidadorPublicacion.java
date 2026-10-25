@@ -16,18 +16,23 @@ public final class ValidadorPublicacion {
 
     private ValidadorPublicacion() {}
 
-    /** Lista los campos pendientes en un orden estable; vacia si la ficha puede publicarse. */
+    /** Campos pendientes de la ficha tal como esta guardada. */
     public static List<FieldViolation> camposFaltantes(Ejercicio e, long mediosConfirmados) {
+        return camposFaltantes(e.contenido(), mediosConfirmados);
+    }
+
+    /** Lista los campos pendientes en un orden estable; vacia si el contenido puede publicarse. */
+    public static List<FieldViolation> camposFaltantes(ContenidoFicha c, long mediosConfirmados) {
         List<FieldViolation> faltantes = new ArrayList<>();
-        texto(faltantes, "objetivoTerapeutico", e.getObjetivoTerapeutico());
-        texto(faltantes, "estructurasIntervenidas", e.getEstructurasIntervenidas());
-        texto(faltantes, "indicaciones", e.getIndicaciones());
-        texto(faltantes, "precaucionesContraindicaciones", e.getPrecaucionesContraindicaciones());
-        texto(faltantes, "posicionPaciente", e.getPosicionPaciente());
-        texto(faltantes, "posicionFisioterapeuta", e.getPosicionFisioterapeuta());
-        texto(faltantes, "ejecucion", e.getEjecucion());
-        texto(faltantes, "comandosVerbales", e.getComandosVerbales());
-        Dosificacion d = e.getDosificacion();
+        texto(faltantes, "objetivoTerapeutico", c.objetivoTerapeutico());
+        texto(faltantes, "estructurasIntervenidas", c.estructurasIntervenidas());
+        texto(faltantes, "indicaciones", c.indicaciones());
+        texto(faltantes, "precaucionesContraindicaciones", c.precaucionesContraindicaciones());
+        texto(faltantes, "posicionPaciente", c.posicionPaciente());
+        texto(faltantes, "posicionFisioterapeuta", c.posicionFisioterapeuta());
+        texto(faltantes, "ejecucion", c.ejecucion());
+        texto(faltantes, "comandosVerbales", c.comandosVerbales());
+        Dosificacion d = c.dosificacion() == null ? Dosificacion.vacia() : c.dosificacion();
         texto(faltantes, "dosificacion.series", d.getSeries());
         texto(faltantes, "dosificacion.repeticiones", d.getRepeticiones());
         texto(faltantes, "dosificacion.intensidad", d.getIntensidad());
@@ -37,9 +42,11 @@ public final class ValidadorPublicacion {
         if (mediosConfirmados < 1) {
             faltantes.add(new FieldViolation("media", MEDIA_REQUERIDA));
         }
-        requerido(faltantes, "estudiantesCreadores", !e.getEstudiantesCreadores().isEmpty());
-        texto(faltantes, "cohorte", e.getCohorte());
-        texto(faltantes, "profesoraRevisora", e.getProfesoraRevisora());
+        boolean hayEstudiantes = c.estudiantesCreadores() != null
+                && c.estudiantesCreadores().stream().anyMatch(n -> n != null && !n.isBlank());
+        requerido(faltantes, "estudiantesCreadores", hayEstudiantes);
+        texto(faltantes, "cohorte", c.cohorte());
+        texto(faltantes, "profesoraRevisora", c.profesoraRevisora());
         return faltantes;
     }
 

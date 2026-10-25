@@ -176,6 +176,14 @@ public class Ejercicio {
         this.actualizadoPor = actor;
     }
 
+    /** Contenido actual de la ficha. */
+    public ContenidoFicha contenido() {
+        return new ContenidoFicha(
+                nombre, region, categoria, objetivoTerapeutico, estructurasIntervenidas, indicaciones,
+                precaucionesContraindicaciones, posicionPaciente, posicionFisioterapeuta, ejecucion, comandosVerbales,
+                dosificacion, progresion, erroresComunes, getEstudiantesCreadores(), cohorte, profesoraRevisora);
+    }
+
     public void registrarEditor(Long actor) {
         this.actualizadoPor = actor;
     }

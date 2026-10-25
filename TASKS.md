@@ -66,7 +66,7 @@ Cada región guarda `svg_id` (id del path en el SVG del front). Sin distinción 
 - [x] 2.3 Crear y actualizar ficha en borrador, validación mínima (HU-04 a HU-07, HU-09, HU-10)
 - [x] 2.4 Entidad `media` y subida a R2 con URL prefirmada, validación de tipo/tamaño (HU-08)
 - [x] 2.5 Validación de campos obligatorios y `POST /ejercicios/{id}/publicar` (HU-11)
-- [ ] 2.6 Editar ficha publicada (HU-12)
+- [x] 2.6 Editar ficha publicada (HU-12)
 - [ ] 2.7 Archivar / restaurar / eliminar (borrado blando) (HU-13, HU-14)
 - [ ] 2.8 Gestión compartida: cualquier admin lista y edita todas las fichas (HU-15)
 - [ ] 2.9 Tests de integración del ciclo de vida completo de la ficha
