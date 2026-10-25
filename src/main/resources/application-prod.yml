@@ -11,6 +11,8 @@ spring:
 app:
   jwt:
     secret: ${JWT_SECRET}
+  auth:
+    frontend-url: ${FRONTEND_URL}
   cors:
     allowed-origins: ${CORS_ORIGINS}
 

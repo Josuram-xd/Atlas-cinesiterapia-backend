@@ -5,7 +5,11 @@ import co.edu.atlas.auth.dto.RefreshRequest;
 import co.edu.atlas.auth.dto.RegistroRequest;
 import co.edu.atlas.auth.dto.TokenResponse;
 import co.edu.atlas.auth.dto.UsuarioResponse;
+import co.edu.atlas.auth.dto.RecuperarRequest;
+import co.edu.atlas.auth.dto.RestablecerRequest;
 import co.edu.atlas.auth.service.AuthService;
+import co.edu.atlas.auth.service.PasswordResetService;
+import java.util.Map;
 import co.edu.atlas.auth.service.RegistroService;
 import jakarta.validation.Valid;
 import co.edu.atlas.auth.security.AuthenticatedUser;
@@ -25,8 +29,10 @@ public class AuthController {
     private final RegistroService registro;
 
     private final AuthService auth;
+    private final PasswordResetService reset;
 
-    public AuthController(RegistroService registro, AuthService auth) {
+    public AuthController(RegistroService registro, AuthService auth, PasswordResetService reset) {
+        this.reset = reset;
         this.registro = registro;
         this.auth = auth;
     }
@@ -34,6 +40,19 @@ public class AuthController {
     @GetMapping("/me")
     public UsuarioResponse me(@AuthenticationPrincipal AuthenticatedUser actual) {
         return auth.perfil(actual.id());
+    }
+
+    @PostMapping("/recuperar")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public Map<String, String> recuperar(@Valid @RequestBody RecuperarRequest request) {
+        reset.solicitar(request.correo());
+        return Map.of("mensaje", "Si el correo esta registrado, recibiras un enlace para restablecer tu contrasena");
+    }
+
+    @PostMapping("/restablecer")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void restablecer(@Valid @RequestBody RestablecerRequest request) {
+        reset.restablecer(request.token(), request.nuevaPassword());
     }
 
     @PostMapping("/login")
