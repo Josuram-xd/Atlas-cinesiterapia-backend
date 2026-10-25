@@ -36,6 +36,7 @@ Leyenda de estado: **[implementado]** ya existe en el backend; **[planificado]**
 | `GET /admin/metricas` (solo ADMIN) | 5.2 | implementado |
 | `GET /admin/metricas/visitas` | 5.3 | implementado |
 | `GET /admin/metricas/ejercicios-mas-consultados` | 5.4 | implementado |
+| `GET /admin/metricas/usuarios-activos` | 5.5 | implementado |
 
 Los datos semilla (27 regiones y 9 categorias, seccion 3) ya existen en la base desde la task 2.1.
 
@@ -621,6 +622,20 @@ type TopEjercicios = {
 ```
 
 Errores: 400 `RANGO_INVALIDO` (solo uno de los dos extremos, desde > hasta, o mas de 366 dias), 400 `VALIDATION_ERROR` (`limite` fuera de 1–50), 403 `ACCESS_DENIED`.
+
+#### `GET /admin/metricas/usuarios-activos?desde=&hasta=` — 200 [implementado]
+
+Usuarios activos por rol de perfil (HU-33). **Activo** = cuenta habilitada con al menos una visita registrada o una sesion de uso (ping) dentro del periodo; cada usuario cuenta una sola vez. `desde`/`hasta` opcionales pero juntos; por defecto los ultimos 30 dias hasta hoy (UTC). Siempre devuelve los 4 roles, en este orden, con `0` si no hubo actividad.
+
+```ts
+type UsuariosActivos = {
+  desde: string; hasta: string;
+  total: number;
+  porRol: { rol: "ESTUDIANTE" | "PROFESIONAL" | "PRACTICANTE" | "VISITANTE"; usuarios: number }[];
+};
+```
+
+Errores: 400 `RANGO_INVALIDO`, 403 `ACCESS_DENIED`.
 
 ---
 

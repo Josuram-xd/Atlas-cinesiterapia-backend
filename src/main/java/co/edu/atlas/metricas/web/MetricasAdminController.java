@@ -3,6 +3,7 @@ package co.edu.atlas.metricas.web;
 import co.edu.atlas.metricas.Agrupacion;
 import co.edu.atlas.metricas.dto.ResumenMetricasResponse;
 import co.edu.atlas.metricas.dto.TopEjerciciosResponse;
+import co.edu.atlas.metricas.dto.UsuariosActivosResponse;
 import co.edu.atlas.metricas.dto.VisitasPeriodoResponse;
 import co.edu.atlas.metricas.service.ConsultaMetricasService;
 import jakarta.validation.constraints.Max;
@@ -48,5 +49,12 @@ public class MetricasAdminController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta,
             @RequestParam(defaultValue = "10") @Min(1) @Max(50) int limite) {
         return service.masConsultados(desde, hasta, limite);
+    }
+
+    @GetMapping("/usuarios-activos")
+    public UsuariosActivosResponse usuariosActivos(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta) {
+        return service.usuariosActivosPorRol(desde, hasta);
     }
 }
