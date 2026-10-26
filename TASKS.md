@@ -103,7 +103,7 @@ Cada región guarda `svg_id` (id del path en el SVG del front). Sin distinción 
 - [ ] 6.3 Cobertura de tests ≥ 80 % en servicios
 
 ## Fase 7 — Despliegue
-- [ ] 7.1 `Dockerfile` multi-stage y `.dockerignore`
+- [x] 7.1 `Dockerfile` multi-stage y `.dockerignore`
 - [ ] 7.2 Despliegue en Render con variables de entorno (`DATABASE_URL`, `JWT_SECRET`, `CORS_ORIGINS`, R2, correo)
 - [ ] 7.3 Endpoint `/actuator/health` y ping periódico (UptimeRobot) contra la suspensión del plan free
 - [ ] 7.4 Documentar el despliegue en el README
