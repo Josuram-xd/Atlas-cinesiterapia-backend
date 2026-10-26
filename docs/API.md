@@ -24,6 +24,14 @@ Leyenda de estado: **[implementado]** ya existe en el backend; **[planificado]**
 | `GET /ejercicios/{id}` | 3.3 | implementado |
 | `GET /ejercicios/buscar?q=` | 3.4 | implementado |
 | Cabeceras de cache (ETag / Cache-Control) | 3.5 | implementado |
+| `GET/POST /ejercicios/{id}/comentarios` | 4.2 | implementado |
+| `PUT/DELETE /comentarios/{id}` (propio) | 4.3 | implementado |
+| `POST /comentarios/{id}/respuestas` | 4.4 | implementado |
+| Filtro de ofensivas (estado `EN_REVISION`, campo `enRevision`) | 4.5 | implementado |
+| `POST /comentarios/{id}/reportes` | 4.6 | implementado |
+| `GET /admin/comentarios/revision` | 4.7 | implementado |
+| `POST /admin/comentarios/{id}/aceptar`, `DELETE /admin/comentarios/{id}` | 4.8 | implementado |
+| `/admin/palabras-ofensivas` (CRUD) | 4.9 | implementado |
 
 Los datos semilla (27 regiones y 9 categorias, seccion 3) ya existen en la base desde la task 2.1.
 
@@ -428,6 +436,119 @@ Los medios en estado pendiente que nunca se confirman no se muestran ni cuentan.
 
 ---
 
-## 8. Modulos futuros (fases 4–5)
+## 8. Comentarios y moderacion [implementado, fase 4]
 
-Comentarios, moderacion y metricas se documentaran aqui cuando se disenen (no forman parte de este contrato todavia).
+Disponible para cualquier usuario autenticado. Los comentarios son **texto plano**: el front debe renderizarlos como texto (nunca como HTML). El backend elimina caracteres de control e invisibles y rechaza cualquier etiqueta HTML (`TEXTO_INVALIDO`).
+
+### Tipos
+
+```ts
+type EstadoComentario = "PUBLICADO" | "EN_REVISION" | "ELIMINADO";
+
+type Autor = { id: number; nombre: string; rolPerfil: RolPerfil }; // nombre = parte local del correo; nunca el correo completo
+
+type Comentario = {
+  id: number;
+  ejercicioId: number;
+  padreId: number | null;      // null en comentarios raiz
+  autor: Autor | null;         // null si estado = ELIMINADO
+  texto: string | null;        // null si estado = ELIMINADO (mostrar "comentario eliminado")
+  estado: EstadoComentario;
+  enRevision: boolean;         // true solo para el propio autor (mostrar atenuado, "esperando revision")
+  eliminado: boolean;
+  propio: boolean;             // true si el usuario autenticado es el autor (mostrar Editar / Eliminar)
+  createdAt: string;
+  editadoAt: string | null;
+  respuestas: Comentario[];    // solo en raices (vacio en respuestas); orden cronologico
+};
+```
+
+Hilos de un nivel: una respuesta siempre cuelga de un comentario raiz. Un comentario `EN_REVISION` solo lo ve su autor; los demas usuarios nunca lo reciben. Un comentario raiz `ELIMINADO` solo aparece (sin texto ni autor) mientras conserve respuestas visibles.
+
+### `GET /ejercicios/{ejercicioId}/comentarios?page=0&size=20` — 200 [implementado]
+
+Pagina (`Pagina<Comentario>`, ver Paginacion; `size` 1–100) de comentarios **raiz**, del mas reciente al mas antiguo, cada uno con sus `respuestas` visibles para quien consulta. Pagina vacia si no hay comentarios (mostrar "aun no hay comentarios"). Respuestas sin cache (`no-store`: dependen del usuario).
+Errores: 404 `EJERCICIO_NO_ENCONTRADO` (ficha inexistente o no publicada).
+
+### `POST /ejercicios/{ejercicioId}/comentarios` — 201 [implementado]
+
+Cuerpo: `{ "texto": string }` (1–1000 caracteres tras limpiar). Devuelve `Comentario`.
+Errores: 400 `VALIDATION_ERROR` (vacio / mas de 1000), 400 `TEXTO_INVALIDO` (contiene HTML o queda vacio), 404 `EJERCICIO_NO_ENCONTRADO`, 429 `DEMASIADOS_INTENTOS` (limite por usuario contra spam; ver `RATE_LIMIT_MAX`/`RATE_LIMIT_WINDOW`).
+
+### `PUT /comentarios/{id}` — 200 [implementado]
+
+Edita el comentario propio. Cuerpo: `{ "texto": string }` (mismas reglas que al crear). Devuelve `Comentario` con `editadoAt` y `respuestas: []` (volver a pedir el listado si se necesitan las respuestas).
+Errores: 400 `VALIDATION_ERROR` / `TEXTO_INVALIDO`, 403 `NO_ES_AUTOR` (comentario visible de otra persona; los administradores tampoco editan texto ajeno), 404 `COMENTARIO_NO_ENCONTRADO` (no existe, esta eliminado o es un comentario en revision de otro usuario), 429 `DEMASIADOS_INTENTOS`.
+
+### `DELETE /comentarios/{id}` — 204 [implementado]
+
+Borrado blando del comentario propio (el texto se vacia y se descartan sus reportes). Si tenia respuestas, el listado lo sigue devolviendo como `eliminado: true` sin texto ni autor.
+Errores: 403 `NO_ES_AUTOR`, 404 `COMENTARIO_NO_ENCONTRADO`.
+
+### `POST /comentarios/{id}/respuestas` — 201 [implementado]
+
+Responde al comentario `{id}`. Cuerpo: `{ "texto": string }`. Devuelve la `Comentario` creada (con `padreId`). **Decision de diseno: los hilos son de un nivel y responder a una respuesta se aplana**: la nueva respuesta cuelga del comentario raiz del hilo (el front puede anteponer "@nombre" al texto si quiere). Las respuestas pasan por las mismas reglas de texto que los comentarios.
+Errores: 400 `VALIDATION_ERROR` / `TEXTO_INVALIDO`, 404 `COMENTARIO_NO_ENCONTRADO` (inexistente, eliminado o en revision de otro usuario), 409 `COMENTARIO_NO_RESPONDIBLE` (el comentario o su raiz no esta publicado, p. ej. tu propio comentario en revision), 404 `EJERCICIO_NO_ENCONTRADO` (ficha ya no publicada), 429 `DEMASIADOS_INTENTOS`.
+
+### Filtro automatico de contenido ofensivo [implementado, task 4.5]
+
+Al crear, editar o responder, el texto se compara con una lista de palabras ofensivas guardada en la base. La comparacion ignora mayusculas y tildes, aplica sustituciones (`4`→a, `3`→e, `0`→o, `1`→i, `5`→s, `7`→t, `@`→a, `$`→s), tolera separadores entre letras (`p.u.t.a`, `p u t a`, `p-u-t-a`) y letras repetidas (`puuuuta`), y busca palabra completa (no marca "reputacion"). Si hay coincidencia el comentario queda `EN_REVISION`: la respuesta `201`/`200` ya trae `estado: "EN_REVISION"` y `enRevision: true`, y el comentario solo se devuelve a su autor (los demas no lo ven ni como contador). Una edicion limpia vuelve a `PUBLICADO`; una edicion ofensiva lo oculta de nuevo.
+Mostrar al autor el comentario atenuado, con icono de advertencia y el mensaje "esperando revision" cuando `enRevision` sea true.
+
+### `POST /comentarios/{id}/reportes` — 201 [implementado]
+
+Sin cuerpo (no se pide motivo). Devuelve `{ "comentarioId": number }`. El comentario reportado **sigue visible** para todos mientras un administrador lo revisa; pasa a la cola de revision (task 4.7). Un usuario solo puede reportar una vez cada comentario y nunca el propio.
+Errores: 403 `REPORTE_PROPIO`, 404 `COMENTARIO_NO_ENCONTRADO` (inexistente, eliminado o en revision de otro usuario), 409 `YA_REPORTADO`, 429 `DEMASIADOS_INTENTOS`.
+
+### Moderacion (solo ADMIN)
+
+```ts
+type ComentarioRevision = {
+  id: number;
+  padreId: number | null;
+  ejercicio: { id: number; nombre: string | null };    // nombre null si la ficha fue eliminada
+  autor: { id: number; correo: string; rolPerfil: RolPerfil };   // el correo completo solo lo ven admins
+  texto: string;
+  estado: "PUBLICADO" | "EN_REVISION";
+  ocultadoAutomaticamente: boolean;   // true = filtro automatico ("ocultado automaticamente")
+  totalReportes: number;              // > 0 = "reportado por usuarios"
+  createdAt: string;
+  editadoAt: string | null;
+};
+```
+
+### `GET /admin/comentarios/revision?tipo=&page=0&size=20` — 200 [implementado]
+
+`Pagina<ComentarioRevision>`, el mas antiguo primero. `tipo`: `OCULTADOS` (estado `EN_REVISION`), `REPORTADOS` (con al menos un reporte) o ausente (ambos). Un comentario puede ser ambos. Los eliminados no aparecen. Pagina vacia = "no hay comentarios pendientes de revision".
+Errores: 400 `VALIDATION_ERROR` / `MALFORMED_REQUEST` (tipo o paginacion invalidos), 403 `ACCESS_DENIED`.
+
+### `POST /admin/comentarios/{id}/aceptar` — 200 [implementado]
+
+Vuelve el comentario a `PUBLICADO` (visible para todos; deja de verse como "esperando revision" para su autor) y **borra todos sus reportes** (los mismos usuarios podrian volver a reportarlo). Devuelve `ComentarioRevision` (con `totalReportes: 0`). Idempotente sobre comentarios ya publicados.
+Errores: 403 `ACCESS_DENIED`, 404 `COMENTARIO_NO_ENCONTRADO` (inexistente o ya eliminado).
+
+### `DELETE /admin/comentarios/{id}` — 204 [implementado]
+
+Elimina cualquier comentario (publicado, en revision o reportado): borrado blando, se vacia el texto y se descartan los reportes. Si tenia respuestas, el listado lo muestra como "comentario eliminado". Desaparece de la ficha y de la cola.
+Errores: 403 `ACCESS_DENIED`, 404 `COMENTARIO_NO_ENCONTRADO`.
+
+### Palabras ofensivas (solo ADMIN)
+
+La lista vive en la base (seed inicial de ~20 entradas). Cada entrada se guarda tal como se escribio (`palabra`) y se compara en forma normalizada (minusculas, sin tildes, sustituciones aplicadas, solo letras y espacios; se admiten frases como `hijo de puta`). Los cambios aplican de inmediato.
+
+```ts
+type Palabra = { id: number; palabra: string; createdAt: string };
+```
+
+- `GET /admin/palabras-ofensivas?q=&page=0&size=20` — 200 `Pagina<Palabra>`, orden alfabetico; `q` filtra (sin tildes ni mayusculas). [implementado]
+- `POST /admin/palabras-ofensivas` — 201, cuerpo `{ "palabra": string }` (max 60). [implementado]
+- `PUT /admin/palabras-ofensivas/{id}` — 200, cuerpo `{ "palabra": string }`. [implementado]
+- `DELETE /admin/palabras-ofensivas/{id}` — 204 (borrado definitivo). [implementado]
+
+Errores: 400 `VALIDATION_ERROR`, 400 `PALABRA_INVALIDA` (menos de 3 letras tras normalizar), 403 `ACCESS_DENIED`, 404 `PALABRA_NO_ENCONTRADA`, 409 `PALABRA_DUPLICADA` (misma forma normalizada). Cambiar la lista no re-evalua comentarios ya publicados.
+
+---
+
+## 9. Modulos futuros
+
+Moderacion de comentarios y metricas se documentaran aqui al implementarse.

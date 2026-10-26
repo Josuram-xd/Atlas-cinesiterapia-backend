@@ -79,15 +79,15 @@ Cada región guarda `svg_id` (id del path en el SVG del front). Sin distinción 
 - [x] 3.5 Cabeceras de caché (ETag / Cache-Control) para ayudar al modo offline
 
 ## Fase 4 — Comentarios y moderación (HU-21 a HU-29)
-- [ ] 4.1 Entidades `comentario` y `reporte_comentario`, hilos de un nivel
-- [ ] 4.2 Crear y listar comentarios publicados (HU-21)
-- [ ] 4.3 Editar y eliminar comentario propio (HU-22, HU-23)
-- [ ] 4.4 Responder a un comentario (HU-29)
-- [ ] 4.5 Filtro de contenido ofensivo (normaliza acentos y sustituciones) → estado EN_REVISION; el autor ve su comentario atenuado (HU-24)
-- [ ] 4.6 Reportar comentario (HU-25)
-- [ ] 4.7 Cola de revisión para admin: ocultados + reportados (HU-26)
-- [ ] 4.8 Aceptar comentario y eliminar cualquier comentario como admin (HU-27, HU-28)
-- [ ] 4.9 CRUD admin de la lista de palabras ofensivas
+- [x] 4.1 Entidades `comentario` y `reporte_comentario`, hilos de un nivel
+- [x] 4.2 Crear y listar comentarios publicados (HU-21)
+- [x] 4.3 Editar y eliminar comentario propio (HU-22, HU-23)
+- [x] 4.4 Responder a un comentario (HU-29)
+- [x] 4.5 Filtro de contenido ofensivo (normaliza acentos y sustituciones) → estado EN_REVISION; el autor ve su comentario atenuado (HU-24)
+- [x] 4.6 Reportar comentario (HU-25)
+- [x] 4.7 Cola de revisión para admin: ocultados + reportados (HU-26)
+- [x] 4.8 Aceptar comentario y eliminar cualquier comentario como admin (HU-27, HU-28)
+- [x] 4.9 CRUD admin de la lista de palabras ofensivas
 
 ## Fase 5 — Métricas (HU-30 a HU-34)
 - [ ] 5.1 Entidades `visita` y `sesion_uso`; registro de visitas y ping de sesión (RF_032)

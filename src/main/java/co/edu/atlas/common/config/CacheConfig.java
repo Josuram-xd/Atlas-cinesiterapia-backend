@@ -37,7 +37,10 @@ public class CacheConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(cabecera(CATALOGO)).addPathPatterns("/regiones", "/regiones/**", "/categorias");
-        registry.addInterceptor(cabecera(ATLAS)).addPathPatterns("/ejercicios", "/ejercicios/**");
+        // Los comentarios dependen de quien consulta (el autor ve los suyos en revision): nunca cacheables.
+        registry.addInterceptor(cabecera(ATLAS))
+                .addPathPatterns("/ejercicios", "/ejercicios/**")
+                .excludePathPatterns("/ejercicios/*/comentarios", "/ejercicios/*/comentarios/**");
     }
 
     private static HandlerInterceptor cabecera(CacheControl cacheControl) {
