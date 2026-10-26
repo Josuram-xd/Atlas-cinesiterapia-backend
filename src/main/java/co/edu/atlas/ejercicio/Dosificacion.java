@@ -41,6 +41,15 @@ public class Dosificacion {
         return new Dosificacion(null, null, null, null, null, null);
     }
 
+    public boolean estaVacia() {
+        return series == null
+                && repeticiones == null
+                && intensidad == null
+                && tiempo == null
+                && descanso == null
+                && frecuencia == null;
+    }
+
     public String getSeries() {
         return series;
     }
