@@ -90,12 +90,12 @@ Cada región guarda `svg_id` (id del path en el SVG del front). Sin distinción 
 - [x] 4.9 CRUD admin de la lista de palabras ofensivas
 
 ## Fase 5 — Métricas (HU-30 a HU-34)
-- [ ] 5.1 Entidades `visita` y `sesion_uso`; registro de visitas y ping de sesión (RF_032)
-- [ ] 5.2 Acceso restringido a admin al módulo de métricas (HU-30)
-- [ ] 5.3 Visitas totales por periodo (HU-31)
-- [ ] 5.4 Ejercicios más consultados (HU-32)
-- [ ] 5.5 Usuarios activos por rol (HU-33)
-- [ ] 5.6 Tiempo promedio de uso por sesión (HU-34)
+- [x] 5.1 Entidades `visita` y `sesion_uso`; registro de visitas y ping de sesión (RF_032)
+- [x] 5.2 Acceso restringido a admin al módulo de métricas (HU-30)
+- [x] 5.3 Visitas totales por periodo (HU-31)
+- [x] 5.4 Ejercicios más consultados (HU-32)
+- [x] 5.5 Usuarios activos por rol (HU-33)
+- [x] 5.6 Tiempo promedio de uso por sesión (HU-34)
 
 ## Fase 6 — Calidad y seguridad (RNF_002, RNF_005)
 - [ ] 6.1 Revisión de seguridad: cabeceras, validación de entrada, CORS estricto, secretos solo por entorno

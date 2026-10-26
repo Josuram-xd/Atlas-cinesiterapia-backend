@@ -19,6 +19,10 @@ public interface EjercicioRepository extends JpaRepository<Ejercicio, Long>, Jpa
             + "group by e.categoria.id")
     List<Object[]> contarPublicadosPorCategoria(@Param("regionId") Long regionId);
 
+    /** Fichas con region y categoria cargadas en una sola consulta (evita N+1 en rankings). */
+    @Query("select e from Ejercicio e join fetch e.region join fetch e.categoria where e.id in :ids")
+    List<Ejercicio> findConRegionYCategoria(@Param("ids") java.util.Collection<Long> ids);
+
     @Override
     @EntityGraph(attributePaths = {"region", "categoria"})
     Page<Ejercicio> findAll(Specification<Ejercicio> spec, Pageable pageable);

@@ -32,6 +32,12 @@ Leyenda de estado: **[implementado]** ya existe en el backend; **[planificado]**
 | `GET /admin/comentarios/revision` | 4.7 | implementado |
 | `POST /admin/comentarios/{id}/aceptar`, `DELETE /admin/comentarios/{id}` | 4.8 | implementado |
 | `/admin/palabras-ofensivas` (CRUD) | 4.9 | implementado |
+| `POST /metricas/visitas`, `POST /metricas/sesion/ping` | 5.1 | implementado |
+| `GET /admin/metricas` (solo ADMIN) | 5.2 | implementado |
+| `GET /admin/metricas/visitas` | 5.3 | implementado |
+| `GET /admin/metricas/ejercicios-mas-consultados` | 5.4 | implementado |
+| `GET /admin/metricas/usuarios-activos` | 5.5 | implementado |
+| `GET /admin/metricas/tiempo-promedio` | 5.6 | implementado |
 
 Los datos semilla (27 regiones y 9 categorias, seccion 3) ya existen en la base desde la task 2.1.
 
@@ -549,6 +555,107 @@ Errores: 400 `VALIDATION_ERROR`, 400 `PALABRA_INVALIDA` (menos de 3 letras tras 
 
 ---
 
-## 9. Modulos futuros
+## 9. Metricas de uso [implementado, fase 5]
+
+### Registro de actividad (cualquier usuario autenticado)
+
+El front llama a estos endpoints; no devuelven datos de otros usuarios. Las metricas agregadas son solo para ADMIN (secciones siguientes).
+
+#### `POST /metricas/visitas` — 204 [implementado]
+
+Registra una visita del usuario autenticado con fecha (UTC) y usuario (RF_032). Llamar al abrir la ficha de un ejercicio o la pagina del atlas.
+
+```ts
+type VisitaRequest =
+  | { tipo: "FICHA"; ejercicioId: number }   // ficha publicada
+  | { tipo: "ATLAS" };                        // sin ejercicioId
+```
+
+Una repeticion del mismo usuario al mismo destino en menos de 10 s se ignora (devuelve 204 igualmente), para absorber dobles disparos.
+Errores: 400 `VALIDATION_ERROR` (falta `tipo`), 400 `VISITA_INVALIDA` (FICHA sin `ejercicioId` o ATLAS con `ejercicioId`), 404 `EJERCICIO_NO_ENCONTRADO` (ficha inexistente o no publicada).
+
+#### `POST /metricas/sesion/ping` — 200 [implementado]
+
+Sin cuerpo. Llamar periodicamente mientras el usuario esta activo (sugerido: cada 60 s con la pestana visible). Continua la sesion vigente o abre una nueva si pasaron mas de **30 minutos** desde el ultimo ping.
+
+```ts
+type Sesion = { sesionId: number; nuevaSesion: boolean; inicio: string; ultimoPing: string; duracionSegundos: number };
+```
+
+La duracion de una sesion es `ultimoPing - inicio`. Pings con menos de 5 s de separacion no actualizan la sesion.
+
+### Metricas agregadas (solo ADMIN)
+
+Todo `/admin/metricas/**` exige rol `ADMIN` (401 sin token, 403 `ACCESS_DENIED` para el resto). Los endpoints de agregacion solo devuelven totales y rankings por ficha; nunca datos individuales de usuarios. Nada de esto se cachea (`no-store`). Las fechas son dias UTC (`AAAA-MM-DD`).
+
+#### `GET /admin/metricas` — 200 [implementado]
+
+Resumen para las tarjetas del panel.
+
+```ts
+type ResumenMetricas = { visitasTotales: number; visitasUltimos30Dias: number; sesionesTotales: number };
+```
+
+#### `GET /admin/metricas/visitas?desde=&hasta=&agrupacion=DIA` — 200 [implementado]
+
+Visitas (atlas + fichas) por periodo (HU-31). `desde` y `hasta` obligatorios (`AAAA-MM-DD`, ambos incluidos, **maximo 366 dias**); `agrupacion`: `DIA` (por defecto), `SEMANA` (semanas que empiezan el lunes) o `MES`. Un rango personalizado es simplemente otro `desde`/`hasta`; para "dia/semana/mes actuales" el front calcula el rango.
+
+```ts
+type VisitasPeriodo = {
+  desde: string; hasta: string; agrupacion: "DIA" | "SEMANA" | "MES";
+  total: number;                                   // 0 si no hay visitas
+  serie: { inicio: string; visitas: number }[];    // inicio = dia, lunes o dia 1; cubos vacios incluidos con 0
+};
+```
+
+En SEMANA/MES el primer y ultimo cubo solo cuentan los dias dentro del rango (su `inicio` puede ser anterior a `desde`).
+Errores: 400 `RANGO_INVALIDO` (desde > hasta o mas de 366 dias), 400 `MALFORMED_REQUEST` (falta un parametro, fecha o agrupacion invalida), 403 `ACCESS_DENIED`.
+
+#### `GET /admin/metricas/ejercicios-mas-consultados?desde=&hasta=&limite=10` — 200 [implementado]
+
+Ranking de fichas por visualizaciones (visitas `FICHA`), de mayor a menor; empates por id. `limite` 1–50 (por defecto 10). `desde`/`hasta` opcionales pero juntos (mismas reglas de rango que arriba); sin ellos se usa todo el historico. Solo aparecen fichas **publicadas** con al menos una visualizacion (puede venir menos de `limite`, o vacio).
+
+```ts
+type TopEjercicios = {
+  desde: string | null; hasta: string | null; limite: number;
+  items: { ejercicioId: number; nombre: string; region: RegionRef; categoria: CategoriaRef; visitas: number }[];
+};
+```
+
+Errores: 400 `RANGO_INVALIDO` (solo uno de los dos extremos, desde > hasta, o mas de 366 dias), 400 `VALIDATION_ERROR` (`limite` fuera de 1–50), 403 `ACCESS_DENIED`.
+
+#### `GET /admin/metricas/usuarios-activos?desde=&hasta=` — 200 [implementado]
+
+Usuarios activos por rol de perfil (HU-33). **Activo** = cuenta habilitada con al menos una visita registrada o una sesion de uso (ping) dentro del periodo; cada usuario cuenta una sola vez. `desde`/`hasta` opcionales pero juntos; por defecto los ultimos 30 dias hasta hoy (UTC). Siempre devuelve los 4 roles, en este orden, con `0` si no hubo actividad.
+
+```ts
+type UsuariosActivos = {
+  desde: string; hasta: string;
+  total: number;
+  porRol: { rol: "ESTUDIANTE" | "PROFESIONAL" | "PRACTICANTE" | "VISITANTE"; usuarios: number }[];
+};
+```
+
+Errores: 400 `RANGO_INVALIDO`, 403 `ACCESS_DENIED`.
+
+#### `GET /admin/metricas/tiempo-promedio?desde=&hasta=` — 200 [implementado]
+
+Tiempo promedio por sesion (HU-34). Promedia la duracion (`ultimoPing - inicio`) de las sesiones **iniciadas** en el periodo que tienen duracion registrada (al menos dos pings). Incluye el mismo calculo para el periodo anterior de igual longitud, para el indicador de tendencia. `desde`/`hasta` opcionales pero juntos; por defecto los ultimos 30 dias.
+
+```ts
+type TiempoPromedio = {
+  desde: string; hasta: string;
+  sesiones: number;                       // sesiones con duracion registrada en el periodo
+  promedioSegundos?: number;              // ausente si no hay datos: mostrar "no hay datos suficientes"
+  anterior: { desde: string; hasta: string; sesiones: number; promedioSegundos?: number };
+  variacionPorcentaje?: number;           // (actual - anterior) / anterior * 100, 1 decimal; ausente si falta alguno
+};
+```
+
+Errores: 400 `RANGO_INVALIDO`, 403 `ACCESS_DENIED`. El tiempo total de una sesion no incluye lo que el usuario hace despues de su ultimo ping: el front debe enviar el ping periodicamente (cada ~60 s) para que la medida sea fiel.
+
+---
+
+## 10. Modulos futuros
 
 Moderacion de comentarios y metricas se documentaran aqui al implementarse.
