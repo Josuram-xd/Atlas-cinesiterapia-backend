@@ -9,5 +9,9 @@ spring:
       ddl-auto: validate
 
 app:
+  rate-limit:
+    max-requests: 1000
   cors:
     allowed-origins: http://localhost:5173
+  jwt:
+    secret: test-secret-test-secret-test-secret-0123

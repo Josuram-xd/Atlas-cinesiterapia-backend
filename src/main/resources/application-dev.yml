@@ -2,3 +2,7 @@
 logging:
   level:
     co.edu.atlas: DEBUG
+# Solo desarrollo: en prod JWT_SECRET es obligatorio.
+app:
+  jwt:
+    secret: ${JWT_SECRET:dev-only-secret-change-me-0123456789abcdef}
