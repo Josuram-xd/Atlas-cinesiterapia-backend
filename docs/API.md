@@ -19,9 +19,11 @@ Leyenda de estado: **[implementado]** ya existe en el backend; **[planificado]**
 | `POST /admin/ejercicios/{id}/publicar`, campo `camposFaltantes` | 2.5 | implementado |
 | Validacion completa de `PUT` en fichas publicadas/archivadas | 2.6 | implementado |
 | `archivar`, `restaurar`, `DELETE` | 2.7 | implementado |
-| `GET /regiones`, `/regiones/{id}/categorias`, `/categorias` | 3.1 | planificado |
-| `GET /ejercicios`, `/ejercicios/{id}`, `/ejercicios/buscar` | 3.2–3.4 | planificado |
-| Cabeceras de cache | 3.5 | planificado |
+| `GET /regiones`, `/regiones/{id}/categorias`, `/categorias` | 3.1 | implementado |
+| `GET /ejercicios?region&categoria` | 3.2 | implementado |
+| `GET /ejercicios/{id}` | 3.3 | implementado |
+| `GET /ejercicios/buscar?q=` | 3.4 | implementado |
+| Cabeceras de cache (ETag / Cache-Control) | 3.5 | implementado |
 
 Los datos semilla (27 regiones y 9 categorias, seccion 3) ya existen en la base desde la task 2.1.
 
@@ -166,7 +168,7 @@ Devuelve `UsuarioResponse` con `rolSistema: "ADMIN"`. Idempotente. Errores: 403 
 
 ---
 
-## 3. Catalogos [planificado, tasks 2.1 y 3.1]
+## 3. Catalogos [implementado, tasks 2.1 y 3.1]
 
 Requieren sesion (cualquier rol). Los IDs son estables (seed); el front debe mapear por `svgId`.
 
@@ -188,6 +190,8 @@ Devuelve `CategoriaConConteo[]` (las 9 categorias, ordenadas por `orden`):
 [ { "id": 1, "nombre": "Movilización pasiva", "orden": 1, "totalEjercicios": 3 } ]
 ```
 `totalEjercicios` = ejercicios **publicados** de esa region en esa categoria (0 = estado vacio). Errores: 404 `REGION_NO_ENCONTRADA`.
+
+`GET /regiones` con `vista` desconocida (por ejemplo `LATERAL`): 400 `MALFORMED_REQUEST`.
 
 ### `GET /categorias` — 200
 `Categoria[]` (las 9). Util para formularios de administracion.
@@ -256,13 +260,13 @@ interface Ejercicio {                 // ficha completa (HU-02)
 ```
 
 ### `GET /ejercicios?region={id}&categoria={id}` — 200
-`EjercicioResumen[]` publicados, ordenados por nombre. Ambos filtros son opcionales y combinables; sin filtros devuelve todos. Lista vacia `[]` = estado vacio (HU-01). 400 `MALFORMED_REQUEST` si un id no es numerico.
+`EjercicioResumen[]` publicados, ordenados por nombre (`region` incluye tambien `vista`). Ambos filtros son opcionales y combinables; sin filtros devuelve todos. Lista vacia `[]` = estado vacio (HU-01). 400 `MALFORMED_REQUEST` si un id no es numerico.
 
 ### `GET /ejercicios/{id}` — 200
 `Ejercicio`. 404 `EJERCICIO_NO_ENCONTRADO` si no existe o no esta publicado. Cabecera `ETag` (ver 7).
 
 ### `GET /ejercicios/buscar?q=texto` — 200
-`EjercicioResumen[]` publicados cuyo nombre contiene `q` (parcial, sin distinguir mayusculas ni tildes: `"flexion"` encuentra `"Flexión"`), maximo 50 resultados, ordenados por nombre. `q` vacio o solo espacios, o mas de 100 caracteres: 400 `VALIDATION_ERROR`. Sin coincidencias: `[]`.
+`EjercicioResumen[]` publicados cuyo nombre contiene `q` (parcial, sin distinguir mayusculas ni tildes: `"flexion"` encuentra `"Flexión"`), maximo 50 resultados, ordenados por nombre. `q` vacio, solo espacios o de mas de 100 caracteres: 400 `VALIDATION_ERROR` (si el parametro `q` ni se envia: 400 `MALFORMED_REQUEST`); el front no deberia llamar con texto vacio. Sin coincidencias: `[]`.
 
 ---
 
@@ -414,11 +418,12 @@ Los medios en estado pendiente que nunca se confirman no se muestran ni cuentan.
 
 ---
 
-## 7. Cache para modo offline [planificado, task 3.5]
+## 7. Cache para modo offline [implementado, task 3.5]
 
 - Catalogos (`/regiones`, `/regiones/{id}/categorias`, `/categorias`): `Cache-Control: private, max-age=3600` + `ETag`.
 - Atlas (`/ejercicios`, `/ejercicios/{id}`, `/ejercicios/buscar`): `Cache-Control: private, max-age=0, must-revalidate` + `ETag`. El navegador/service worker revalida con `If-None-Match` y recibe `304` si no cambio.
-- `/admin/**` y `/auth/**`: nunca se cachean (`no-store`).
+- `/admin/**` y `/auth/**`: nunca se cachean (`no-store`). Las respuestas de error tampoco (`no-store`, sin ETag).
+- El `ETag` es debil y se calcula sobre el cuerpo: si cambia cualquier dato de la respuesta (incluida una `url` de media prefirmada y temporal) cambia el ETag. Con `R2_PUBLIC_BASE_URL` configurado las `url` son estables y el `304` funciona tambien en `GET /ejercicios/{id}`; sin el, la ficha rara vez devolvera 304 (las imagenes ya cargadas si pueden seguir cacheadas por su propia URL).
 - Todas las respuestas cacheables llevan `Vary: Authorization`.
 
 ---

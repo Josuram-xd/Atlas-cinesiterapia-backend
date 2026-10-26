@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -80,6 +81,6 @@ public class GlobalExceptionHandler {
             HttpStatus status, String code, String message, HttpServletRequest req, List<FieldViolation> violations) {
         ApiError body = new ApiError(
                 Instant.now(), status.value(), status.getReasonPhrase(), code, message, req.getRequestURI(), violations);
-        return ResponseEntity.status(status).body(body);
+        return ResponseEntity.status(status).cacheControl(CacheControl.noStore()).body(body);
     }
 }

@@ -4,6 +4,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import co.edu.atlas.auth.jwt.JwtService;
 import co.edu.atlas.auth.usuario.RolPerfil;
@@ -151,6 +152,16 @@ public abstract class ApiIntegrationTest {
         long id = crearBorrador(admin, fichaCompleta(nombre));
         agregarImagen(admin, id);
         mvc.perform(postReq("/admin/ejercicios/" + id + "/publicar", admin)).andReturn();
+        return id;
+    }
+
+    protected long publicada(Usuario admin, String nombre, String svgId, int categoria) throws Exception {
+        Map<String, Object> ficha = fichaCompleta(nombre);
+        ficha.put("regionId", regionId(svgId));
+        ficha.put("categoriaId", categoriaId(categoria));
+        long id = crearBorrador(admin, ficha);
+        agregarImagen(admin, id);
+        mvc.perform(postReq("/admin/ejercicios/" + id + "/publicar", admin)).andExpect(status().isOk());
         return id;
     }
 
