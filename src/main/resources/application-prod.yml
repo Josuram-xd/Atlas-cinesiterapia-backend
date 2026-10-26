@@ -15,6 +15,13 @@ app:
     frontend-url: ${FRONTEND_URL}
   cors:
     allowed-origins: ${CORS_ORIGINS}
+  media:
+    proveedor: ${MEDIA_PROVIDER:r2}
+    r2:
+      endpoint: ${R2_ENDPOINT}
+      access-key: ${R2_ACCESS_KEY_ID}
+      secret-key: ${R2_SECRET_ACCESS_KEY}
+      bucket: ${R2_BUCKET}
 
 logging:
   level:

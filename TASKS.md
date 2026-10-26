@@ -61,15 +61,15 @@ Cada región guarda `svg_id` (id del path en el SVG del front). Sin distinción 
 - [x] 1.8 Seed del primer administrador desde variables de entorno + endpoint para promover a admin
 
 ## Fase 2 — Catálogo y fichas (HU-04 a HU-15)
-- [ ] 2.1 Migraciones y entidades `region_anatomica`, `categoria_terapeutica` + seed
-- [ ] 2.2 Migración y entidad `ejercicio` con estado BORRADOR/PUBLICADO/ARCHIVADO y metadatos académicos
-- [ ] 2.3 Crear y actualizar ficha en borrador, validación mínima (HU-04 a HU-07, HU-09, HU-10)
-- [ ] 2.4 Entidad `media` y subida a R2 con URL prefirmada, validación de tipo/tamaño (HU-08)
-- [ ] 2.5 Validación de campos obligatorios y `POST /ejercicios/{id}/publicar` (HU-11)
-- [ ] 2.6 Editar ficha publicada (HU-12)
-- [ ] 2.7 Archivar / restaurar / eliminar (borrado blando) (HU-13, HU-14)
-- [ ] 2.8 Gestión compartida: cualquier admin lista y edita todas las fichas (HU-15)
-- [ ] 2.9 Tests de integración del ciclo de vida completo de la ficha
+- [x] 2.1 Migraciones y entidades `region_anatomica`, `categoria_terapeutica` + seed
+- [x] 2.2 Migración y entidad `ejercicio` con estado BORRADOR/PUBLICADO/ARCHIVADO y metadatos académicos
+- [x] 2.3 Crear y actualizar ficha en borrador, validación mínima (HU-04 a HU-07, HU-09, HU-10)
+- [x] 2.4 Entidad `media` y subida a R2 con URL prefirmada, validación de tipo/tamaño (HU-08)
+- [x] 2.5 Validación de campos obligatorios y `POST /ejercicios/{id}/publicar` (HU-11)
+- [x] 2.6 Editar ficha publicada (HU-12)
+- [x] 2.7 Archivar / restaurar / eliminar (borrado blando) (HU-13, HU-14)
+- [x] 2.8 Gestión compartida: cualquier admin lista y edita todas las fichas (HU-15)
+- [x] 2.9 Tests de integración del ciclo de vida completo de la ficha
 
 ## Fase 3 — API de consulta del atlas (HU-01 a HU-03)
 - [ ] 3.1 `GET /regiones`, `GET /regiones/{id}/categorias`
@@ -106,4 +106,4 @@ Cada región guarda `svg_id` (id del path en el SVG del front). Sin distinción 
 - [x] 7.1 `Dockerfile` multi-stage y `.dockerignore`
 - [ ] 7.2 Despliegue en Render con variables de entorno (`DATABASE_URL`, `JWT_SECRET`, `CORS_ORIGINS`, R2, correo)
 - [ ] 7.3 Endpoint `/actuator/health` y ping periódico (UptimeRobot) contra la suspensión del plan free
-- [ ] 7.4 Documentar el despliegue en el README
+- [x] 7.4 Documentar el despliegue en el README
