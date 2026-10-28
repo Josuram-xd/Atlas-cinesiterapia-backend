@@ -1,6 +1,8 @@
 // Prueba de carga ligera del atlas (RNF_005). Uso y umbrales: README, seccion "Pruebas de carga".
+// NO apuntar a produccion: crea comentarios reales.
 import http from 'k6/http';
 import { check, sleep } from 'k6';
+import exec from 'k6/execution';
 
 const BASE = __ENV.BASE_URL || 'http://localhost:8080';
 // Cuentas ya registradas, separadas por coma: correo:clave,correo:clave
@@ -36,10 +38,10 @@ export const options = {
       maxVUs: 5,
       exec: 'comentar',
     },
-    // 4 logins por minuto; el limite del servidor es 10 por IP y minuto.
+    // 2 logins por minuto: con los <= 5 del setup quedan por debajo del limite de 10 por IP y minuto.
     login: {
       executor: 'constant-arrival-rate',
-      rate: 4,
+      rate: 2,
       timeUnit: '1m',
       duration: '3m',
       preAllocatedVUs: 1,
@@ -66,7 +68,8 @@ function loginReq(u) {
 
 export function setup() {
   if (USUARIOS.length === 0) throw new Error('Define USUARIOS=correo:clave,... para correr la carga');
-  // shortcut: un login por cuenta al arrancar; con mas de 6 cuentas el limite de login (10/min por IP) lo corta. Subir RATE_LIMIT_MAX en el entorno de prueba.
+  // shortcut: un login por cuenta al arrancar; mas de 5 cuentas topan el limite de login (10/min por IP). Para mas, subir RATE_LIMIT_MAX en el entorno de prueba.
+  if (USUARIOS.length > 5 && !__ENV.SIN_TOPE_LOGIN) throw new Error('Maximo 5 cuentas (o SIN_TOPE_LOGIN=1 si el servidor tiene RATE_LIMIT_MAX alto)');
   const tokens = USUARIOS.map((u) => loginReq(u).json('accessToken'));
   if (tokens.some((t) => !t)) throw new Error('Login fallido en setup: revisa USUARIOS o el limite de login');
   const regiones = http.get(`${BASE}/regiones`, auth(tokens[0])).json();
@@ -84,13 +87,16 @@ export function lectura(data) {
   });
   check(http.get(`${BASE}/ejercicios/${pick(data.ids)}`, auth(token)), { 'ficha 200': (r) => r.status === 200 });
   check(http.get(`${BASE}/ejercicios/buscar?q=cadera`, auth(token)), { 'busqueda 200': (r) => r.status === 200 });
+  check(http.post(`${BASE}/metricas/sesion/ping`, null, auth(token)), { 'ping sesion 200': (r) => r.status === 200 });
   sleep(1);
 }
 
 export function comentar(data) {
-  const token = data.tokens[__ITER % data.tokens.length];
+  // iterationInTest es global; __ITER es por VU y cargaria siempre las primeras cuentas.
+  const n = exec.scenario.iterationInTest;
+  const token = data.tokens[n % data.tokens.length];
   const id = pick(data.ids);
-  const texto = `Comentario de prueba de carga ${__VU}-${__ITER}`;
+  const texto = `Comentario de prueba de carga ${n}`;
   check(
     http.post(`${BASE}/ejercicios/${id}/comentarios`, JSON.stringify({ texto }), {
       headers: { ...JSON_HEADERS, Authorization: `Bearer ${token}` },
@@ -103,6 +109,6 @@ export function comentar(data) {
 }
 
 export function loginCarga() {
-  const res = loginReq(USUARIOS[__ITER % USUARIOS.length]);
+  const res = loginReq(USUARIOS[exec.scenario.iterationInTest % USUARIOS.length]);
   check(res, { 'login 200': (r) => r.status === 200 });
 }
