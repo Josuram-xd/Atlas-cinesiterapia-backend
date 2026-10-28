@@ -100,7 +100,7 @@ Cada región guarda `svg_id` (id del path en el SVG del front). Sin distinción 
 ## Fase 6 — Calidad y seguridad (RNF_002, RNF_005)
 - [ ] 6.1 Revisión de seguridad: cabeceras, validación de entrada, CORS estricto, secretos solo por entorno
 - [ ] 6.2 Pruebas de carga ligeras (k6) para concurrencia
-- [ ] 6.3 Cobertura de tests ≥ 80 % en servicios
+- [x] 6.3 Cobertura de tests ≥ 80 % en servicios
 
 ## Fase 7 — Despliegue
 - [x] 7.1 `Dockerfile` multi-stage y `.dockerignore`
