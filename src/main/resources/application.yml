@@ -1,0 +1,64 @@
+spring:
+  application:
+    name: atlas-cinesiterapia-backend
+  profiles:
+    default: dev
+  datasource:
+    # Neon: jdbc:postgresql://<host>/<db>?sslmode=require (ver README)
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/atlas}
+    username: ${DB_USER:atlas}
+    password: ${DB_PASSWORD:atlas}
+    hikari:
+      # Pool pequeno: el plan free de Neon limita conexiones y suspende por inactividad.
+      maximum-pool-size: ${DB_POOL_SIZE:5}
+      minimum-idle: 1
+      connection-timeout: 10000
+      idle-timeout: 120000
+      max-lifetime: 600000
+  flyway:
+    enabled: true
+    # db/vendor/{vendor}: migraciones especificas por motor (postgresql: pg_trgm; h2: solo tests).
+    locations: classpath:db/migration,classpath:db/vendor/{vendor}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+
+server:
+  port: ${PORT:8080}
+
+app:
+  auth:
+    frontend-url: ${FRONTEND_URL:http://localhost:5173}
+    reset-ttl: ${RESET_TTL:30m}
+    close-grace: ${CLOSE_GRACE:60s}
+  rate-limit:
+    max-requests: ${RATE_LIMIT_MAX:10}
+    window: ${RATE_LIMIT_WINDOW:1m}
+  admin:
+    email: ${ADMIN_EMAIL:}
+    password: ${ADMIN_PASSWORD:}
+  metricas:
+    # Tope de visitas por usuario y minuto (anti-inflado de metricas)
+    max-visitas-por-minuto: ${METRICAS_MAX_VISITAS_MIN:30}
+  cors:
+    allowed-origins: ${CORS_ORIGINS:http://localhost:5173}
+  media:
+    # fake: sin red (dev y tests). r2: Cloudflare R2 con URL prefirmada (credenciales solo por entorno).
+    proveedor: ${MEDIA_PROVIDER:fake}
+    subida-ttl: ${MEDIA_UPLOAD_TTL:10m}
+    lectura-ttl: ${MEDIA_READ_TTL:1h}
+    # Si el bucket se expone con dominio publico (recomendado: URLs estables y cacheables), p. ej. https://media.midominio.com
+    public-base-url: ${R2_PUBLIC_BASE_URL:}
+    r2:
+      endpoint: ${R2_ENDPOINT:}
+      access-key: ${R2_ACCESS_KEY_ID:}
+      secret-key: ${R2_SECRET_ACCESS_KEY:}
+      bucket: ${R2_BUCKET:}
+      region: ${R2_REGION:auto}
+
+springdoc:
+  api-docs:
+    enabled: ${SPRINGDOC_ENABLED:true}
+  swagger-ui:
+    enabled: ${SPRINGDOC_ENABLED:true}
