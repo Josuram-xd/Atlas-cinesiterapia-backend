@@ -7,6 +7,7 @@ import co.edu.atlas.common.web.Pagina;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -35,7 +36,7 @@ public class PalabraOfensivaAdminController {
 
     @GetMapping
     public Pagina<PalabraResponse> listar(
-            @RequestParam(required = false) String q,
+            @RequestParam(required = false) @Size(max = 100) String q,
             @RequestParam(defaultValue = "0") @Min(0) int page,
             @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size) {
         return service.listar(q, page, size);

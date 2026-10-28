@@ -26,10 +26,13 @@ import co.edu.atlas.ejercicio.EstadoEjercicio;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.time.Clock;
+import java.time.Duration;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -51,6 +54,9 @@ class ComentarioServiceTests {
     private ComentarioService servicio() {
         return new ComentarioService(comentarios, ejercicios, usuarios, limiter, reportes, clock, filtro);
     }
+    // Limitador real (1 por minuto): en memoria, no hace falta simularlo.
+    @Spy
+    RateLimiter limiter = new RateLimiter(1, Duration.ofMinutes(1), Clock.systemUTC());
 
     /** Ficha real (no mock): evita stubs anidados dentro de when(...).thenReturn(...). */
     private static Ejercicio ficha(EstadoEjercicio estado) {
