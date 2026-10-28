@@ -1,6 +1,7 @@
 package co.edu.atlas.metricas.service;
 
 import co.edu.atlas.common.error.ApiException;
+import co.edu.atlas.common.ratelimit.RateLimiter;
 import co.edu.atlas.ejercicio.EjercicioRepository;
 import co.edu.atlas.ejercicio.EstadoEjercicio;
 import co.edu.atlas.metricas.MetricasProperties;
@@ -27,6 +28,7 @@ public class RegistroMetricasService {
     private final EjercicioRepository ejercicios;
     private final MetricasProperties props;
     private final Clock clock;
+    private final RateLimiter limiteVisitas;
 
     public RegistroMetricasService(
             VisitaRepository visitas,
@@ -39,6 +41,7 @@ public class RegistroMetricasService {
         this.ejercicios = ejercicios;
         this.props = props;
         this.clock = clock;
+        this.limiteVisitas = new RateLimiter(props.maxVisitasPorMinuto(), Duration.ofMinutes(1), clock);
     }
 
     /**
@@ -46,6 +49,10 @@ public class RegistroMetricasService {
      * inmediata al mismo destino (doble disparo del front) se ignora sin error.
      */
     public void registrarVisita(Long usuarioId, TipoVisita tipo, Long ejercicioId) {
+        if (!limiteVisitas.tryAcquire(String.valueOf(usuarioId))) {
+            throw ApiException.tooManyRequests(
+                    "DEMASIADOS_INTENTOS", "Demasiadas visitas seguidas, espera un momento");
+        }
         validarDestino(tipo, ejercicioId);
         Instant ahora = clock.instant();
         Instant desde = ahora.minus(props.ventanaDuplicados());

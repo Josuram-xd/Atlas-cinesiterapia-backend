@@ -38,6 +38,9 @@ app:
   admin:
     email: ${ADMIN_EMAIL:}
     password: ${ADMIN_PASSWORD:}
+  metricas:
+    # Tope de visitas por usuario y minuto (anti-inflado de metricas)
+    max-visitas-por-minuto: ${METRICAS_MAX_VISITAS_MIN:30}
   cors:
     allowed-origins: ${CORS_ORIGINS:http://localhost:5173}
   media:

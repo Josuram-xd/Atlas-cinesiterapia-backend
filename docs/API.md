@@ -575,7 +575,8 @@ type VisitaRequest =
 ```
 
 Una repeticion del mismo usuario al mismo destino en menos de 10 s se ignora (devuelve 204 igualmente), para absorber dobles disparos.
-Errores: 400 `VALIDATION_ERROR` (falta `tipo`), 400 `VISITA_INVALIDA` (FICHA sin `ejercicioId` o ATLAS con `ejercicioId`), 404 `EJERCICIO_NO_ENCONTRADO` (ficha inexistente o no publicada).
+**Tope anti-inflado:** maximo 30 visitas por usuario y minuto (ventana deslizante, configurable con `METRICAS_MAX_VISITAS_MIN`); la 31.ª responde 429 `DEMASIADOS_INTENTOS` y no se registra. El front no debe reintentar de inmediato: basta con descartar la visita.
+Errores: 429 `DEMASIADOS_INTENTOS` (tope por minuto), 400 `VALIDATION_ERROR` (falta `tipo`), 400 `VISITA_INVALIDA` (FICHA sin `ejercicioId` o ATLAS con `ejercicioId`), 404 `EJERCICIO_NO_ENCONTRADO` (ficha inexistente o no publicada).
 
 #### `POST /metricas/sesion/ping` — 200 [implementado]
 
