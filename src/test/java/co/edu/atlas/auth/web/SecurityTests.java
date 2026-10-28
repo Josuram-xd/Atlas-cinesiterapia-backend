@@ -84,6 +84,21 @@ class SecurityTests {
     }
 
     @Test
+    void healthReportsOnlyStatusWithoutDetails() throws Exception {
+        mvc.perform(get("/actuator/health"))
+                .andExpect(jsonPath("$.status").value("UP"))
+                .andExpect(jsonPath("$.components").doesNotExist())
+                .andExpect(jsonPath("$.details").doesNotExist());
+    }
+
+    @Test
+    void livenessIsPublic() throws Exception {
+        mvc.perform(get("/actuator/health/liveness"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("UP"));
+    }
+
+    @Test
     void otherActuatorEndpointsAreProtected() throws Exception {
         mvc.perform(get("/actuator/env")).andExpect(status().isUnauthorized());
     }
@@ -101,9 +116,22 @@ class SecurityTests {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    void adminPathsNeedAdminEvenWithoutPreAuthorize() throws Exception {
+        mvc.perform(get("/admin/test-sin-anotacion").header("Authorization", bearer(RolSistema.USER)))
+                .andExpect(status().isForbidden());
+        mvc.perform(get("/admin/test-sin-anotacion").header("Authorization", bearer(RolSistema.ADMIN)))
+                .andExpect(status().isOk());
+    }
+
     @TestConfiguration
     @RestController
     static class RolesController {
+        @GetMapping("/admin/test-sin-anotacion")
+        String adminSinAnotacion() {
+            return "ok";
+        }
+
         @GetMapping("/test-roles/admin")
         @PreAuthorize("hasRole('ADMIN')")
         String admin() {

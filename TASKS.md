@@ -98,12 +98,14 @@ Cada región guarda `svg_id` (id del path en el SVG del front). Sin distinción 
 - [x] 5.6 Tiempo promedio de uso por sesión (HU-34)
 
 ## Fase 6 — Calidad y seguridad (RNF_002, RNF_005)
-- [ ] 6.1 Revisión de seguridad: cabeceras, validación de entrada, CORS estricto, secretos solo por entorno
-- [ ] 6.2 Pruebas de carga ligeras (k6) para concurrencia — script listo en `load/`; falta ejecutarlo con k6 contra un entorno de prueba y anotar resultados
+- [x] 6.1 Revisión de seguridad: cabeceras, validación de entrada, CORS estricto, secretos solo por entorno (lo que solo se verifica desplegado quedó en 7.2)
+- [ ] 6.2 Pruebas de carga ligeras (k6) para concurrencia
 - [ ] 6.3 Cobertura de tests ≥ 80 % en servicios
 
 ## Fase 7 — Despliegue
 - [x] 7.1 `Dockerfile` multi-stage y `.dockerignore`
 - [ ] 7.2 Despliegue en Render con variables de entorno (`DATABASE_URL`, `JWT_SECRET`, `CORS_ORIGINS`, R2, correo)
+  - Pendiente del dueño: elegir proveedor de correo (Resend o Brevo por HTTP) y su API key; sin él RF_047 (recuperar contraseña) no envía nada en prod.
+  - Tras el primer despliegue: comprobar que el rate limit ve la IP real detrás de Render/Cloudflare (11 logins desde dos redes distintas; si se bloquean juntas, configurar `server.tomcat.remoteip.trusted-proxies`).
 - [ ] 7.3 Endpoint `/actuator/health` y ping periódico (UptimeRobot) contra la suspensión del plan free
 - [x] 7.4 Documentar el despliegue en el README

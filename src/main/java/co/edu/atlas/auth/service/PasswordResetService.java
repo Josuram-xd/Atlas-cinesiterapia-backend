@@ -11,6 +11,7 @@ import co.edu.atlas.common.error.ApiException;
 import co.edu.atlas.common.mail.CorreoSender;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.concurrent.CompletableFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -82,10 +83,12 @@ public class PasswordResetService {
         String cuerpo = "Recibimos una solicitud para restablecer tu contrasena del Atlas de Cinesiterapia.\n\n"
                 + "Usa este enlace (vence en " + props.resetTtl().toMinutes() + " minutos y solo sirve una vez):\n"
                 + enlace + "\n\nSi no fuiste tu, ignora este mensaje.";
-        try {
-            correo.enviar(destino, "Restablecer contrasena", cuerpo);
-        } catch (RuntimeException e) {
-            log.error("No se pudo enviar el correo de recuperacion", e);
-        }
+        // Fuera del hilo de la peticion: el envio no alarga la respuesta y no revela si el correo existe.
+        // shortcut: pool comun de la JVM; pasar a un executor propio si el volumen de correos crece.
+        CompletableFuture.runAsync(() -> correo.enviar(destino, "Restablecer contrasena", cuerpo))
+                .exceptionally(e -> {
+                    log.error("No se pudo enviar el correo de recuperacion", e);
+                    return null;
+                });
     }
 }
