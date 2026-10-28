@@ -83,7 +83,7 @@ Todo requiere `Authorization: Bearer <accessToken>` salvo `/auth/**`, `/actuator
 | `GET /auth/me` | Datos del usuario autenticado |
 | `POST /admin/usuarios/{id}/promover` | Promueve a ADMIN (solo ADMIN) |
 
-Limitaciones conocidas: el access token ya emitido sigue valido hasta expirar (15 min) tras logout o cierre; el rate limit es en memoria (una sola instancia).
+Limitaciones conocidas (riesgos aceptados): el access token ya emitido sigue valido hasta expirar (15 min) tras logout, cierre, desactivacion o cambio de rol; el rate limit es en memoria (una sola instancia) y el de login es por IP, no por cuenta; el registro responde 409 si el correo ya existe (inherente al registro inmediato, mitigado por el rate limit). Login y recuperacion no revelan si una cuenta existe: misma respuesta y tiempo similar.
 
 ## Formato de errores
 
@@ -149,9 +149,10 @@ Render suspende los servicios gratuitos tras unos 15 minutos sin trafico, y Neon
 ### Limitaciones actuales
 
 - El rate limit es en memoria: vale para una sola instancia (el plan free ya es una).
-- El envio de correo aun no tiene proveedor configurado; sin el, la recuperacion de contrasena solo escribe en el log.
+- El envio de correo aun no tiene proveedor configurado (pendiente: Resend o Brevo por HTTP); sin el, en prod la recuperacion de contrasena responde 202 pero no envia nada.
+- El rate limit usa `getRemoteAddr()` con `forward-headers-strategy: native`. Hay que comprobar tras el primer despliegue que detras de Render/Cloudflare llega la IP real del cliente y no la del proxy.
 - La imagen Docker aun no se ha construido ni probado con `docker build`; hay que verificarlo en el primer despliegue.
 
 ## CI
 
-GitHub Actions (`.github/workflows/ci.yml`) ejecuta `./mvnw verify` en cada push a `main` y en cada pull request.
+GitHub Actions (`.github/workflows/ci.yml`) ejecuta `./mvnw verify` en cada push a `main` o `develop` y en cada pull request.
