@@ -23,6 +23,7 @@ import co.edu.atlas.common.web.Pagina;
 import co.edu.atlas.ejercicio.Ejercicio;
 import co.edu.atlas.ejercicio.EjercicioRepository;
 import co.edu.atlas.ejercicio.EstadoEjercicio;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -40,11 +41,12 @@ class ComentarioServiceTests {
     @Mock ComentarioRepository comentarios;
     @Mock EjercicioRepository ejercicios;
     @Mock UsuarioRepository usuarios;
-    @Mock RateLimiter limiter;
     @Mock ReporteComentarioRepository reportes;
     @Mock FiltroOfensivoService filtro;
 
     MutableClock clock = new MutableClock();
+    // Limitador real (1 accion por minuto): en memoria, no hace falta simularlo.
+    RateLimiter limiter = new RateLimiter(1, Duration.ofMinutes(1), clock);
 
     private ComentarioService servicio() {
         return new ComentarioService(comentarios, ejercicios, usuarios, limiter, reportes, clock, filtro);
@@ -61,7 +63,7 @@ class ComentarioServiceTests {
 
     @Test
     void throttlesUsersWhoCommentTooFast() {
-        when(limiter.tryAcquire("comentar|7")).thenReturn(false);
+        limiter.tryAcquire("comentar|7");
 
         assertThatThrownBy(() -> servicio().crear(1L, "hola", 7L))
                 .isInstanceOfSatisfying(ApiException.class, e -> {
@@ -73,7 +75,6 @@ class ComentarioServiceTests {
 
     @Test
     void rejectsMissingSheetBeforeSaving() {
-        when(limiter.tryAcquire("comentar|7")).thenReturn(true);
         when(ejercicios.findById(1L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> servicio().crear(1L, "hola", 7L))
@@ -83,7 +84,6 @@ class ComentarioServiceTests {
 
     @Test
     void crearGuardaElComentarioConElEstadoDelFiltro() {
-        when(limiter.tryAcquire("comentar|7")).thenReturn(true);
         when(ejercicios.findById(1L)).thenReturn(Optional.of(ficha(EstadoEjercicio.PUBLICADO)));
         when(usuarios.getReferenceById(7L)).thenReturn(usuario(7L));
         when(filtro.estadoPara("hola")).thenReturn(EstadoComentario.EN_REVISION);
@@ -98,7 +98,6 @@ class ComentarioServiceTests {
 
     @Test
     void crearEnFichaNoPublicadaFalla() {
-        when(limiter.tryAcquire("comentar|7")).thenReturn(true);
         when(ejercicios.findById(1L)).thenReturn(Optional.of(ficha(EstadoEjercicio.BORRADOR)));
 
         assertThatThrownBy(() -> servicio().crear(1L, "hola", 7L))
@@ -108,7 +107,6 @@ class ComentarioServiceTests {
 
     @Test
     void crearConTextoVacioFallaAntesDeGuardar() {
-        when(limiter.tryAcquire("comentar|7")).thenReturn(true);
         when(ejercicios.findById(1L)).thenReturn(Optional.of(ficha(EstadoEjercicio.PUBLICADO)));
 
         assertThatThrownBy(() -> servicio().crear(1L, "   ", 7L)).isInstanceOf(ApiException.class);
@@ -117,7 +115,6 @@ class ComentarioServiceTests {
 
     @Test
     void responderAUnaRaizPublicadaLaCuelgaDeEsa() {
-        when(limiter.tryAcquire("comentar|7")).thenReturn(true);
         when(comentarios.findById(10L))
                 .thenReturn(Optional.of(comentario(10L, 1L, usuario(1L), null, EstadoComentario.PUBLICADO)));
         when(ejercicios.findById(1L)).thenReturn(Optional.of(ficha(EstadoEjercicio.PUBLICADO)));
@@ -130,7 +127,6 @@ class ComentarioServiceTests {
 
     @Test
     void responderAUnaRespuestaAplanaAlHiloDeLaRaiz() {
-        when(limiter.tryAcquire("comentar|7")).thenReturn(true);
         when(comentarios.findById(11L))
                 .thenReturn(Optional.of(comentario(11L, 1L, usuario(2L), 10L, EstadoComentario.PUBLICADO)));
         when(comentarios.findById(10L))
@@ -145,7 +141,6 @@ class ComentarioServiceTests {
 
     @Test
     void responderAUnHiloCuyaRaizEstaEnRevisionFalla() {
-        when(limiter.tryAcquire("comentar|7")).thenReturn(true);
         when(comentarios.findById(11L))
                 .thenReturn(Optional.of(comentario(11L, 1L, usuario(2L), 10L, EstadoComentario.PUBLICADO)));
         when(comentarios.findById(10L))
@@ -158,7 +153,6 @@ class ComentarioServiceTests {
 
     @Test
     void responderAUnComentarioNoVisibleEsNoEncontrado() {
-        when(limiter.tryAcquire("comentar|7")).thenReturn(true);
         when(comentarios.findById(10L))
                 .thenReturn(Optional.of(comentario(10L, 1L, usuario(1L), null, EstadoComentario.EN_REVISION)));
 
@@ -168,7 +162,6 @@ class ComentarioServiceTests {
 
     @Test
     void editarRecalculaElEstadoConElFiltro() {
-        when(limiter.tryAcquire("comentar|7")).thenReturn(true);
         when(comentarios.findById(10L))
                 .thenReturn(Optional.of(comentario(10L, 1L, usuario(7L), null, EstadoComentario.PUBLICADO)));
         when(filtro.estadoPara("nuevo texto")).thenReturn(EstadoComentario.EN_REVISION);

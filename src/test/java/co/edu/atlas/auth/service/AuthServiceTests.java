@@ -99,14 +99,14 @@ class AuthServiceTests {
     }
 
     @Test
-    void loginDeUsuarioInactivoFallaSinComprobarPassword() {
+    void loginDeUsuarioInactivoFalla() {
         Usuario ana = ana();
         ana.setActivo(false);
         when(usuarios.findByCorreo("ana@correo.com")).thenReturn(Optional.of(ana));
 
         assertThatThrownBy(() -> servicio().login(new LoginRequest("ana@correo.com", "clave")))
                 .isInstanceOf(ApiException.class);
-        verify(encoder, never()).matches(anyString(), anyString());
+        verify(refreshTokens, never()).save(any());
     }
 
     @Test

@@ -16,6 +16,8 @@ import co.edu.atlas.comentario.ReporteComentario;
 import co.edu.atlas.comentario.ReporteComentarioRepository;
 import co.edu.atlas.common.error.ApiException;
 import co.edu.atlas.common.ratelimit.RateLimiter;
+import java.time.Clock;
+import java.time.Duration;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,7 +30,8 @@ class ReporteComentarioServiceTests {
 
     @Mock ComentarioRepository comentarios;
     @Mock ReporteComentarioRepository reportes;
-    @Mock RateLimiter limiter;
+    // Limitador real (1 reporte por minuto): en memoria, no hace falta simularlo.
+    RateLimiter limiter = new RateLimiter(1, Duration.ofMinutes(1), Clock.systemUTC());
 
     private ReporteComentarioService servicio() {
         return new ReporteComentarioService(comentarios, reportes, limiter);
@@ -36,7 +39,6 @@ class ReporteComentarioServiceTests {
 
     @Test
     void reportarComentarioAjenoGuardaElReporte() {
-        when(limiter.tryAcquire("reportar|2")).thenReturn(true);
         when(comentarios.findById(10L))
                 .thenReturn(Optional.of(comentario(10L, 5L, usuario(1L), null, EstadoComentario.PUBLICADO)));
         when(reportes.existsByComentarioIdAndUsuarioId(10L, 2L)).thenReturn(false);
@@ -47,7 +49,7 @@ class ReporteComentarioServiceTests {
 
     @Test
     void reportarPorEncimaDelLimiteFallaCon429() {
-        when(limiter.tryAcquire("reportar|2")).thenReturn(false);
+        limiter.tryAcquire("reportar|2");
 
         assertThatThrownBy(() -> servicio().reportar(10L, 2L))
                 .isInstanceOfSatisfying(ApiException.class, e -> assertThat(e.getCode()).isEqualTo("DEMASIADOS_INTENTOS"));
@@ -56,7 +58,6 @@ class ReporteComentarioServiceTests {
 
     @Test
     void reportarUnComentarioNoVisibleEsNoEncontrado() {
-        when(limiter.tryAcquire("reportar|2")).thenReturn(true);
         when(comentarios.findById(10L))
                 .thenReturn(Optional.of(comentario(10L, 5L, usuario(1L), null, EstadoComentario.EN_REVISION)));
 
@@ -67,7 +68,6 @@ class ReporteComentarioServiceTests {
 
     @Test
     void reportarElPropioComentarioEsProhibido() {
-        when(limiter.tryAcquire("reportar|2")).thenReturn(true);
         when(comentarios.findById(10L))
                 .thenReturn(Optional.of(comentario(10L, 5L, usuario(2L), null, EstadoComentario.PUBLICADO)));
 
@@ -77,7 +77,6 @@ class ReporteComentarioServiceTests {
 
     @Test
     void reportarDosVecesFallaConYaReportado() {
-        when(limiter.tryAcquire("reportar|2")).thenReturn(true);
         when(comentarios.findById(10L))
                 .thenReturn(Optional.of(comentario(10L, 5L, usuario(1L), null, EstadoComentario.PUBLICADO)));
         when(reportes.existsByComentarioIdAndUsuarioId(10L, 2L)).thenReturn(true);
@@ -89,7 +88,6 @@ class ReporteComentarioServiceTests {
 
     @Test
     void carreraEnElReporteUnicoTambienFallaConYaReportado() {
-        when(limiter.tryAcquire("reportar|2")).thenReturn(true);
         when(comentarios.findById(10L))
                 .thenReturn(Optional.of(comentario(10L, 5L, usuario(1L), null, EstadoComentario.PUBLICADO)));
         when(reportes.existsByComentarioIdAndUsuarioId(10L, 2L)).thenReturn(false);

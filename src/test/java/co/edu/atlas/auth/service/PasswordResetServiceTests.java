@@ -8,6 +8,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -65,7 +66,7 @@ class PasswordResetServiceTests {
         verify(resetTokens).invalidarPendientes(any(), eq(clock.instant()));
         verify(resetTokens).save(any(PasswordResetToken.class));
         ArgumentCaptor<String> cuerpo = ArgumentCaptor.forClass(String.class);
-        verify(correo).enviar(eq("ana@correo.com"), anyString(), cuerpo.capture());
+        verify(correo, timeout(2000)).enviar(eq("ana@correo.com"), anyString(), cuerpo.capture());
         Matcher m = Pattern.compile("token=(\\S+)").matcher(cuerpo.getValue());
         assertThat(m.find()).isTrue();
         assertThat(cuerpo.getValue()).contains("http://front/restablecer-password?token=");
@@ -98,6 +99,7 @@ class PasswordResetServiceTests {
 
         assertThatCode(() -> servicio().solicitar("ana@correo.com")).doesNotThrowAnyException();
         verify(resetTokens).save(any());
+        verify(correo, timeout(2000)).enviar(anyString(), anyString(), anyString());
     }
 
     @Test
