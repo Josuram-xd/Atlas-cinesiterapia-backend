@@ -1,8 +1,11 @@
 package co.edu.atlas.common.ratelimit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import co.edu.atlas.auth.support.MutableClock;
+import co.edu.atlas.common.error.ApiException;
 import java.time.Duration;
 import org.junit.jupiter.api.Test;
 
@@ -44,6 +47,19 @@ class RateLimiterTests {
         clock.advance(Duration.ofSeconds(31));
 
         assertThat(limiter.tryAcquire("a")).isTrue();
+    }
+
+    @Test
+    void exigirThrows429OnceTheLimitIsReached() {
+        assertThatCode(() -> limiter.exigir("a", "espera")).doesNotThrowAnyException();
+        limiter.exigir("a", "espera");
+
+        assertThatThrownBy(() -> limiter.exigir("a", "espera"))
+                .isInstanceOfSatisfying(ApiException.class, e -> {
+                    assertThat(e.getStatus().value()).isEqualTo(429);
+                    assertThat(e.getCode()).isEqualTo("DEMASIADOS_INTENTOS");
+                    assertThat(e.getMessage()).isEqualTo("espera");
+                });
     }
 
     @Test

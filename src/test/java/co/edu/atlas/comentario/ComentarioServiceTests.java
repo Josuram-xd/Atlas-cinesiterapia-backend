@@ -11,11 +11,14 @@ import co.edu.atlas.comentario.service.ComentarioService;
 import co.edu.atlas.common.error.ApiException;
 import co.edu.atlas.common.ratelimit.RateLimiter;
 import co.edu.atlas.ejercicio.EjercicioRepository;
+import java.time.Clock;
+import java.time.Duration;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
@@ -30,15 +33,16 @@ class ComentarioServiceTests {
     @Mock
     co.edu.atlas.auth.usuario.UsuarioRepository usuarios;
 
-    @Mock
-    RateLimiter limiter;
+    // Limitador real (1 por minuto): en memoria, no hace falta simularlo.
+    @Spy
+    RateLimiter limiter = new RateLimiter(1, Duration.ofMinutes(1), Clock.systemUTC());
 
     @InjectMocks
     ComentarioService service;
 
     @Test
     void throttlesUsersWhoCommentTooFast() {
-        when(limiter.tryAcquire("comentar|7")).thenReturn(false);
+        limiter.tryAcquire("comentar|7");
 
         assertThatThrownBy(() -> service.crear(1L, "hola", 7L))
                 .isInstanceOfSatisfying(ApiException.class, e -> {
@@ -50,7 +54,6 @@ class ComentarioServiceTests {
 
     @Test
     void rejectsMissingSheetBeforeSaving() {
-        when(limiter.tryAcquire("comentar|7")).thenReturn(true);
         when(ejercicios.findById(1L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.crear(1L, "hola", 7L))

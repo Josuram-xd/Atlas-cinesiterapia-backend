@@ -107,12 +107,10 @@ public class AuthService {
                 .orElseThrow(() -> ApiException.unauthorized("NO_AUTENTICADO", "Debes iniciar sesion"));
     }
 
+    /** Siempre un BCrypt: correo inexistente, cuenta inactiva y clave incorrecta tardan lo mismo. */
     private boolean credencialesValidas(Usuario usuario, String password) {
-        if (usuario == null) {
-            encoder.matches(password, hashFalso);
-            return false;
-        }
-        return usuario.isActivo() && encoder.matches(password, usuario.getPasswordHash());
+        boolean coincide = encoder.matches(password, usuario == null ? hashFalso : usuario.getPasswordHash());
+        return coincide && usuario != null && usuario.isActivo();
     }
 
     private TokenResponse emitirTokens(Usuario usuario) {

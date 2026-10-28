@@ -116,9 +116,22 @@ class SecurityTests {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    void adminPathsNeedAdminEvenWithoutPreAuthorize() throws Exception {
+        mvc.perform(get("/admin/test-sin-anotacion").header("Authorization", bearer(RolSistema.USER)))
+                .andExpect(status().isForbidden());
+        mvc.perform(get("/admin/test-sin-anotacion").header("Authorization", bearer(RolSistema.ADMIN)))
+                .andExpect(status().isOk());
+    }
+
     @TestConfiguration
     @RestController
     static class RolesController {
+        @GetMapping("/admin/test-sin-anotacion")
+        String adminSinAnotacion() {
+            return "ok";
+        }
+
         @GetMapping("/test-roles/admin")
         @PreAuthorize("hasRole('ADMIN')")
         String admin() {

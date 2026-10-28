@@ -5,7 +5,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -70,7 +70,7 @@ class PasswordResetTests {
 
     private String ultimoTokenEnviado() {
         ArgumentCaptor<String> cuerpo = ArgumentCaptor.forClass(String.class);
-        verify(correo, times(1)).enviar(eq("ana@correo.com"), anyString(), cuerpo.capture());
+        verify(correo, timeout(2000).times(1)).enviar(eq("ana@correo.com"), anyString(), cuerpo.capture());
         Matcher m = TOKEN.matcher(cuerpo.getValue());
         assertThat(m.find()).isTrue();
         return m.group(1);
