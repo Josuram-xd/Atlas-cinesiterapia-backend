@@ -92,6 +92,13 @@ class SecurityTests {
     }
 
     @Test
+    void livenessIsPublic() throws Exception {
+        mvc.perform(get("/actuator/health/liveness"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("UP"));
+    }
+
+    @Test
     void otherActuatorEndpointsAreProtected() throws Exception {
         mvc.perform(get("/actuator/env")).andExpect(status().isUnauthorized());
     }

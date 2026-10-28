@@ -105,5 +105,5 @@ Cada región guarda `svg_id` (id del path en el SVG del front). Sin distinción 
 ## Fase 7 — Despliegue
 - [x] 7.1 `Dockerfile` multi-stage y `.dockerignore`
 - [ ] 7.2 Despliegue en Render con variables de entorno (`DATABASE_URL`, `JWT_SECRET`, `CORS_ORIGINS`, R2, correo)
-- [x] 7.3 Endpoint `/actuator/health` y ping periódico (UptimeRobot) contra la suspensión del plan free
+- [ ] 7.3 Endpoint `/actuator/health` y ping periódico (UptimeRobot) contra la suspensión del plan free — endpoint hecho (`/actuator/health/liveness`); falta que el dueño cree el monitor UptimeRobot (paso manual)
 - [x] 7.4 Documentar el despliegue en el README

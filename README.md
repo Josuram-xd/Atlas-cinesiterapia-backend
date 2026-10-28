@@ -66,7 +66,7 @@ docker compose up -d
 ./mvnw verify
 ```
 
-Flyway aplica las migraciones de `src/main/resources/db/migration` al arrancar, mas las especificas del motor en `db/vendor/{vendor}` (PostgreSQL crea el indice `pg_trgm` de busqueda; H2, usado solo en tests, un indice simple). Salud del servicio: `GET /actuator/health` (público, sin token; responde solo `{"status":"UP"}`, sin componentes ni detalles). Es el único endpoint de actuator expuesto por web; el resto no está expuesto.
+Flyway aplica las migraciones de `src/main/resources/db/migration` al arrancar, mas las especificas del motor en `db/vendor/{vendor}` (PostgreSQL crea el indice `pg_trgm` de busqueda; H2, usado solo en tests, un indice simple). Salud del servicio: `GET /actuator/health/liveness` (público, sin token, no consulta la BD) y `GET /actuator/health` (incluye la BD; para diagnóstico). Ambos responden solo `{"status":"UP"}`, sin detalles. Es el único endpoint de actuator expuesto por web.
 
 ## Autenticacion
 
@@ -110,7 +110,7 @@ Arquitectura objetivo, usando solo servicios con plan gratuito:
 | API (este repo) | **Render**, web service Docker, plan free | Se construye con el `Dockerfile` y se configura con `render.yaml` |
 | Base de datos | **Neon** (PostgreSQL) | Se conecta con `sslmode=require`; el perfil `prod` exige SSL |
 | Archivos (medios) | **Cloudflare R2** | Pendiente de integrar en el codigo (tarea 7.2) |
-| Anti-suspension | **UptimeRobot** | Ping periodico a `/actuator/health` |
+| Anti-suspension | **UptimeRobot** | Ping periodico a `/actuator/health/liveness` |
 
 ### 1. Base de datos en Neon
 
@@ -133,18 +133,18 @@ Arquitectura objetivo, usando solo servicios con plan gratuito:
 
 `SPRING_PROFILES_ACTIVE=prod`, `SPRINGDOC_ENABLED=false` y `DB_POOL_SIZE=5` ya vienen en el blueprint. `PORT` lo inyecta Render y la aplicacion lo lee automaticamente.
 
-Render usa `/actuator/health` como comprobacion de salud. Ese endpoint es publico (no requiere token) y no expone detalles.
+Render usa `/actuator/health/liveness` como comprobacion de salud (no depende de la BD: una pausa de Neon no marca el servicio como caido). Ese endpoint es publico (no requiere token) y no expone detalles.
 
 ### 3. Verificacion
 
 ```bash
-curl https://<servicio>.onrender.com/actuator/health
+curl https://<servicio>.onrender.com/actuator/health/liveness
 # {"status":"UP"}
 ```
 
 ### 4. Evitar la suspension del plan free
 
-Render suspende los servicios gratuitos tras unos 15 minutos sin trafico, y Neon suspende la base por inactividad. Crea en UptimeRobot un monitor HTTP(s) sobre `https://<servicio>.onrender.com/actuator/health` con intervalo de 5 minutos. Eso reduce, pero no elimina, la latencia del primer arranque.
+Render suspende los servicios gratuitos tras unos 15 minutos sin trafico, y Neon suspende la base por inactividad. Crea en UptimeRobot un monitor HTTP(s) sobre `https://<servicio>.onrender.com/actuator/health/liveness` con intervalo de 5 minutos (paso manual, pendiente). Mantiene despierto Render sin tocar la BD, asi Neon puede suspenderse y no gasta horas de computo; la primera consulta tras la pausa de Neon tarda algo mas.
 
 ### Limitaciones actuales
 

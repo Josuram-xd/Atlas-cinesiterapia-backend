@@ -63,13 +63,10 @@ springdoc:
   swagger-ui:
     enabled: ${SPRINGDOC_ENABLED:true}
 
+# Por defecto Boot solo expone health por web y sin detalles.
 management:
-  endpoints:
-    web:
-      # Solo health: el resto de actuator (env, beans...) queda fuera de la web.
-      exposure:
-        include: health
   endpoint:
     health:
-      # Publico sin detalles: solo {"status": "..."}, sin componentes ni clave de BD.
-      show-details: never
+      probes:
+        # /actuator/health/liveness no consulta la BD: Render y UptimeRobot no despiertan Neon ni ven 503 si duerme.
+        enabled: true
