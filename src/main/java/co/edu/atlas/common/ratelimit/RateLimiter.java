@@ -1,5 +1,6 @@
 package co.edu.atlas.common.ratelimit;
 
+import co.edu.atlas.common.error.ApiException;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -50,6 +51,13 @@ public class RateLimiter {
             }
             cola.addLast(now);
             return true;
+        }
+    }
+
+    /** Como tryAcquire, pero lanza 429 DEMASIADOS_INTENTOS con el mensaje dado si se supera el limite. */
+    public void exigir(String key, String mensaje) {
+        if (!tryAcquire(key)) {
+            throw ApiException.tooManyRequests("DEMASIADOS_INTENTOS", mensaje);
         }
     }
 
