@@ -68,6 +68,22 @@ docker compose up -d
 
 Flyway aplica las migraciones de `src/main/resources/db/migration` al arrancar, mas las especificas del motor en `db/vendor/{vendor}` (PostgreSQL crea el indice `pg_trgm` de busqueda; H2, usado solo en tests, un indice simple). Salud del servicio: `GET /actuator/health`.
 
+## Pruebas de carga (k6)
+
+Script en [`load/carga-atlas.js`](load/carga-atlas.js): 20 usuarios leyendo el atlas, comentarios y logins concurrentes durante unos 4 minutos. Requiere [k6](https://k6.io/docs/get-started/installation/) instalado.
+
+Antes: cuentas ya registradas (`POST /auth/registro`) y al menos una ficha publicada en el entorno.
+
+```bash
+k6 run -e BASE_URL=http://localhost:8080 -e USUARIOS="correo1@ejemplo.com:clave1,correo2@ejemplo.com:clave2" load/carga-atlas.js
+```
+
+Umbrales (la prueba falla si no se cumplen): error HTTP < 1 %, p95 de lectura < 800 ms, p95 de comentarios y logins < 1 s.
+
+- No apuntar a produccion: la prueba crea comentarios reales.
+- Limites del servidor: login 10 por IP y minuto; comentar 10 por usuario y minuto. Con mas de 6 cuentas el arranque falla por el limite de login; para cargas mayores sube `RATE_LIMIT_MAX` en el entorno de prueba.
+- Render free: la primera peticion tras la suspension tarda; puede subir el p95.
+
 ## Autenticacion
 
 Todo requiere `Authorization: Bearer <accessToken>` salvo `/auth/**`, `/actuator/health` y la documentacion (solo activa si `SPRINGDOC_ENABLED`).
