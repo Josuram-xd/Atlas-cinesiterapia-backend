@@ -69,6 +69,9 @@ public class SecurityConfig {
                         .authenticated()
                         .requestMatchers(PUBLICOS)
                         .permitAll()
+                        // Defensa en profundidad: un controller admin nuevo sin @PreAuthorize sigue protegido.
+                        .requestMatchers("/admin/**")
+                        .hasRole("ADMIN")
                         .anyRequest()
                         .authenticated())
                 .addFilterBefore(new RateLimitFilter(limiter, errores), UsernamePasswordAuthenticationFilter.class)
