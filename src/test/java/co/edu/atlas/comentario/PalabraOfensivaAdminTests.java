@@ -56,6 +56,12 @@ class PalabraOfensivaAdminTests extends ApiIntegrationTest {
     }
 
     @Test
+    void rejectsOverlongFilter() throws Exception {
+        mvc.perform(getReq(URL + "?q=" + "x".repeat(101), admin)).andExpect(status().isBadRequest());
+        mvc.perform(getReq("/admin/ejercicios?q=" + "x".repeat(101), admin)).andExpect(status().isBadRequest());
+    }
+
+    @Test
     void createsAWordAndTheFilterUsesItRightAway() throws Exception {
         crear("Chirimoya");
         long ficha = crearPublicada(admin, "Ficha");

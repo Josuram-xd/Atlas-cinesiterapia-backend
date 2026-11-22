@@ -47,7 +47,9 @@ Los datos semilla (27 regiones y 9 categorias, seccion 3) ya existen en la base 
 
 ### Autenticacion
 
-Todo requiere `Authorization: Bearer <accessToken>` salvo `/auth/**`, `/actuator/health` y la documentacion.
+Todo requiere `Authorization: Bearer <accessToken>` salvo `/auth/**`, `/actuator/health/**` y la documentacion.
+
+Salud: `GET /actuator/health/liveness` (no consulta la BD; lo usan Render y el ping de UptimeRobot) y `GET /actuator/health` (incluye la BD). Ambos responden `200 {"status":"UP"}` sin detalles; `503 {"status":"DOWN"}` si algo falla.
 
 - Access token: JWT, vigencia 15 min (`expiresIn` en segundos).
 - Refresh token: opaco, vigencia 7 dias, **rotativo** (cada `/auth/refresh` entrega uno nuevo y revoca el anterior).

@@ -28,6 +28,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class ComentarioService {
 
+    static final String DEMASIADAS_ACCIONES = "Demasiadas acciones seguidas, espera un momento";
+
     private final ComentarioRepository comentarios;
     private final EjercicioRepository ejercicios;
     private final UsuarioRepository usuarios;
@@ -54,7 +56,7 @@ public class ComentarioService {
     }
 
     public ComentarioResponse crear(Long ejercicioId, String texto, Long actorId) {
-        limitar("comentar", actorId);
+        limiter.exigir("comentar|" + actorId, DEMASIADAS_ACCIONES);
         exigirFichaPublicada(ejercicioId);
         String limpio = TextoComentario.limpiar(texto);
         Usuario autor = usuarios.getReferenceById(actorId);
@@ -67,7 +69,7 @@ public class ComentarioService {
      * cuelga de la raiz del hilo. El comentario respondido debe ser visible para el usuario y la raiz estar publicada.
      */
     public ComentarioResponse responder(Long comentarioId, String texto, Long actorId) {
-        limitar("comentar", actorId);
+        limiter.exigir("comentar|" + actorId, DEMASIADAS_ACCIONES);
         Comentario objetivo = comentarios
                 .findById(comentarioId)
                 .filter(x -> x.visiblePara(actorId))
@@ -91,7 +93,7 @@ public class ComentarioService {
     /** Edita el texto del comentario propio (HU-22). La respuesta no incluye {@code respuestas}. */
     public ComentarioResponse editar(Long id, String texto, Long actorId) {
         Comentario c = propio(id, actorId);
-        limitar("comentar", actorId);
+        limiter.exigir("comentar|" + actorId, DEMASIADAS_ACCIONES);
         String limpio = TextoComentario.limpiar(texto);
         c.editar(limpio, filtro.estadoPara(limpio), clock.instant());
         return ComentarioResponse.de(c, actorId, List.of());
@@ -128,13 +130,6 @@ public class ComentarioService {
                                 Comentario::getPadreId,
                                 Collectors.mapping(r -> ComentarioResponse.de(r, viewerId, List.of()), Collectors.toList())));
         return Pagina.de(raices, c -> ComentarioResponse.de(c, viewerId, respuestas.getOrDefault(c.getId(), List.of())));
-    }
-
-    /** Limite por usuario (ventana deslizante en memoria) contra spam de escritura. */
-    void limitar(String accion, Long actorId) {
-        if (!limiter.tryAcquire(accion + "|" + actorId)) {
-            throw ApiException.tooManyRequests("DEMASIADOS_INTENTOS", "Demasiadas acciones seguidas, espera un momento");
-        }
     }
 
     private void exigirFichaPublicada(Long ejercicioId) {

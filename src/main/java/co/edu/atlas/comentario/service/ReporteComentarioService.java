@@ -31,9 +31,7 @@ public class ReporteComentarioService {
     }
 
     public ReporteResponse reportar(Long comentarioId, Long actorId) {
-        if (!limiter.tryAcquire("reportar|" + actorId)) {
-            throw ApiException.tooManyRequests("DEMASIADOS_INTENTOS", "Demasiadas acciones seguidas, espera un momento");
-        }
+        limiter.exigir("reportar|" + actorId, ComentarioService.DEMASIADAS_ACCIONES);
         Comentario c = comentarios
                 .findById(comentarioId)
                 .filter(x -> x.visiblePara(actorId))

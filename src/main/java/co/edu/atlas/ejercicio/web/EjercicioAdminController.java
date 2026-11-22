@@ -10,6 +10,7 @@ import co.edu.atlas.ejercicio.service.EjercicioAdminService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -49,7 +50,7 @@ public class EjercicioAdminController {
             @RequestParam(required = false) EstadoEjercicio estado,
             @RequestParam(required = false) Long regionId,
             @RequestParam(required = false) Long categoriaId,
-            @RequestParam(required = false) String q,
+            @RequestParam(required = false) @Size(max = 100) String q,
             @RequestParam(defaultValue = "0") @Min(0) int page,
             @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size) {
         return service.listar(estado, regionId, categoriaId, q, page, size);

@@ -49,10 +49,7 @@ public class RegistroMetricasService {
      * inmediata al mismo destino (doble disparo del front) se ignora sin error.
      */
     public void registrarVisita(Long usuarioId, TipoVisita tipo, Long ejercicioId) {
-        if (!limiteVisitas.tryAcquire(String.valueOf(usuarioId))) {
-            throw ApiException.tooManyRequests(
-                    "DEMASIADOS_INTENTOS", "Demasiadas visitas seguidas, espera un momento");
-        }
+        limiteVisitas.exigir(String.valueOf(usuarioId), "Demasiadas visitas seguidas, espera un momento");
         validarDestino(tipo, ejercicioId);
         Instant ahora = clock.instant();
         Instant desde = ahora.minus(props.ventanaDuplicados());
