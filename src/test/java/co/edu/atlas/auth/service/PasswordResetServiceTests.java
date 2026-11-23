@@ -69,7 +69,7 @@ class PasswordResetServiceTests {
         verify(correo, timeout(2000)).enviar(eq("ana@correo.com"), anyString(), cuerpo.capture());
         Matcher m = Pattern.compile("token=(\\S+)").matcher(cuerpo.getValue());
         assertThat(m.find()).isTrue();
-        assertThat(cuerpo.getValue()).contains("http://front/restablecer-password?token=");
+        assertThat(cuerpo.getValue()).contains("http://front/restablecer?token=");
     }
 
     @Test

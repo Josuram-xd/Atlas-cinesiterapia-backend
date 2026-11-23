@@ -79,7 +79,7 @@ public class PasswordResetService {
     }
 
     private void enviar(String destino, String tokenPlano) {
-        String enlace = props.frontendUrl() + "/restablecer-password?token=" + tokenPlano;
+        String enlace = props.frontendUrl() + "/restablecer?token=" + tokenPlano;
         String cuerpo = "Recibimos una solicitud para restablecer tu contrasena del Atlas de Cinesiterapia.\n\n"
                 + "Usa este enlace (vence en " + props.resetTtl().toMinutes() + " minutos y solo sirve una vez):\n"
                 + enlace + "\n\nSi no fuiste tu, ignora este mensaje.";
