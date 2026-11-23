@@ -25,7 +25,8 @@ import org.springframework.test.web.servlet.ResultActions;
 @Import(TestClockConfig.class)
 class RateLimitFilterTests {
 
-    private static final String LOGIN = "{\"correo\":\"nadie@correo.com\",\"password\":\"secreta123\"}";
+    // Correo distinto por peticion: aqui se prueba el limite por IP, no el de fallos por cuenta.
+    private static final java.util.concurrent.atomic.AtomicInteger SEQ = new java.util.concurrent.atomic.AtomicInteger();
 
     @Autowired
     MockMvc mvc;
@@ -40,7 +41,7 @@ class RateLimitFilterTests {
                     return r;
                 })
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(LOGIN));
+                .content("{\"correo\":\"nadie" + SEQ.incrementAndGet() + "@correo.com\",\"password\":\"secreta123\"}"));
     }
 
     @Test
