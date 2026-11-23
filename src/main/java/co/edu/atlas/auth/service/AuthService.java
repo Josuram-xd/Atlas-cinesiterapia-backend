@@ -12,7 +12,9 @@ import co.edu.atlas.auth.token.Tokens;
 import co.edu.atlas.auth.usuario.Usuario;
 import co.edu.atlas.auth.usuario.UsuarioRepository;
 import co.edu.atlas.common.error.ApiException;
+import co.edu.atlas.common.ratelimit.RateLimiter;
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,7 @@ public class AuthService {
     private final JwtProperties props;
     private final AuthProperties authProps;
     private final Clock clock;
+    private final RateLimiter intentosPorCuenta;
 
     public AuthService(
             UsuarioRepository usuarios,
@@ -48,12 +51,22 @@ public class AuthService {
         this.authProps = authProps;
         this.clock = clock;
         this.hashFalso = encoder.encode("contrasena-inexistente");
+        // 10 fallos por cuenta en 15 min (ademas del limite por IP del filtro): frena la fuerza bruta repartida entre IPs.
+        // shortcut: en memoria, se reinicia al redesplegar; pasar a Redis/BD si hay varias instancias.
+        this.intentosPorCuenta = new RateLimiter(10, Duration.ofMinutes(15), clock);
     }
 
     @Transactional
     public TokenResponse login(LoginRequest request) {
-        Usuario usuario = usuarios.findByCorreo(Usuario.normalizar(request.correo())).orElse(null);
+        String correo = Usuario.normalizar(request.correo());
+        String clave = "login|" + correo;
+        if (intentosPorCuenta.superado(clave)) {
+            throw ApiException.tooManyRequests(
+                    "DEMASIADOS_INTENTOS", "Demasiados intentos fallidos para esta cuenta, espera unos minutos");
+        }
+        Usuario usuario = usuarios.findByCorreo(correo).orElse(null);
         if (!credencialesValidas(usuario, request.password())) {
+            intentosPorCuenta.tryAcquire(clave); // solo cuentan los fallos
             throw credencialesInvalidas();
         }
         return emitirTokens(usuario);

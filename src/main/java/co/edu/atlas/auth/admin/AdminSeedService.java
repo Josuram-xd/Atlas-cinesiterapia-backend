@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AdminSeedService {
 
     private static final Logger log = LoggerFactory.getLogger(AdminSeedService.class);
-    private static final int MIN_PASSWORD = 8;
+    private static final int MIN_PASSWORD = 10;
 
     private final AdminProperties props;
     private final UsuarioRepository usuarios;
