@@ -81,8 +81,8 @@ public class Usuario {
         return passwordHash;
     }
 
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
+    public void cambiarPassword(String nuevoHash) {
+        this.passwordHash = nuevoHash;
     }
 
     public RolPerfil getRolPerfil() {
@@ -93,16 +93,17 @@ public class Usuario {
         return rolSistema;
     }
 
-    public void setRolSistema(RolSistema rolSistema) {
-        this.rolSistema = rolSistema;
+    /** Idempotente: promover a quien ya es administrador no cambia nada. */
+    public void promoverAAdministrador() {
+        this.rolSistema = RolSistema.ADMIN;
     }
 
     public boolean isActivo() {
         return activo;
     }
 
-    public void setActivo(boolean activo) {
-        this.activo = activo;
+    public void desactivar() {
+        this.activo = false;
     }
 
     public Instant getCreatedAt() {

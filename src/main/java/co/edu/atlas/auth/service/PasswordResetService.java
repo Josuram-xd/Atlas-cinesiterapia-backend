@@ -66,7 +66,7 @@ public class PasswordResetService {
         }
         Usuario usuario = usuarios.findById(guardado.getUsuarioId())
                 .orElseThrow(() -> ApiException.badRequest("TOKEN_INVALIDO", "El enlace no es valido o ya expiro"));
-        usuario.setPasswordHash(encoder.encode(nuevaPassword));
+        usuario.cambiarPassword(encoder.encode(nuevaPassword));
         refreshTokens.revocarTodosDe(usuario.getId(), ahora);
     }
 

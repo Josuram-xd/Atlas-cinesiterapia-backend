@@ -32,7 +32,7 @@ class LoginTiempoConstanteTests {
     @Test
     void cuentaInactivaCompruebaLaClaveYFalla() {
         Usuario ana = new Usuario("ana@correo.com", "HASH", RolPerfil.ESTUDIANTE, RolSistema.USER);
-        ana.setActivo(false);
+        ana.desactivar();
         when(usuarios.findByCorreo("ana@correo.com")).thenReturn(Optional.of(ana));
         when(encoder.matches("clave", "HASH")).thenReturn(true);
 
