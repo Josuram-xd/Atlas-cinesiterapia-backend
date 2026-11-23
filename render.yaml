@@ -30,10 +30,23 @@ services:
         value: https://atlas-cinesiterapia.vercel.app
       - key: FRONTEND_URL
         value: https://atlas-cinesiterapia.vercel.app
-      # shortcut: sin bucket R2 todavia, la multimedia usa el almacenamiento falso; cambiar a r2 y anadir R2_* al crearlo.
+      # Multimedia en Cloudflare R2. Las llaves salen de un token de R2 (Object Read & Write sobre el bucket).
       - key: MEDIA_PROVIDER
-        value: fake
+        value: r2
+      - key: R2_ENDPOINT
+        value: https://8ed5dbebdf58fc54c8ca5e3860948df2.r2.cloudflarestorage.com
+      - key: R2_BUCKET
+        value: atlas-multimedia
+      - key: R2_ACCESS_KEY_ID
+        sync: false
+      - key: R2_SECRET_ACCESS_KEY
+        sync: false
       - key: ADMIN_EMAIL
         sync: false
       - key: ADMIN_PASSWORD
         sync: false
+      # Correo transaccional (Brevo). Sin BREVO_API_KEY no se envia nada.
+      - key: BREVO_API_KEY
+        sync: false
+      - key: BREVO_SENDER_EMAIL
+        value: atlas.cinesiterapia@gmail.com
