@@ -23,12 +23,16 @@ services:
         sync: false
       - key: DB_PASSWORD
         sync: false
+      # Render genera un secreto aleatorio al crear el servicio.
       - key: JWT_SECRET
-        sync: false
+        generateValue: true
       - key: CORS_ORIGINS
-        sync: false
+        value: https://atlas-cinesiterapia.vercel.app
       - key: FRONTEND_URL
-        sync: false
+        value: https://atlas-cinesiterapia.vercel.app
+      # shortcut: sin bucket R2 todavia, la multimedia usa el almacenamiento falso; cambiar a r2 y anadir R2_* al crearlo.
+      - key: MEDIA_PROVIDER
+        value: fake
       - key: ADMIN_EMAIL
         sync: false
       - key: ADMIN_PASSWORD
