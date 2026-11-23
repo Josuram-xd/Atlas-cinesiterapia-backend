@@ -1,0 +1,39 @@
+# Blueprint de Render para el backend. Los valores marcados con `sync: false`
+# NO van aqui: se completan en el panel de Render (Environment) al crear el servicio.
+services:
+  - type: web
+    name: atlas-cinesiterapia-backend
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /actuator/health/liveness
+    autoDeploy: true
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: SPRINGDOC_ENABLED
+        value: "false"
+      - key: DB_POOL_SIZE
+        value: "5"
+      # Neon: jdbc:postgresql://<host>/<db>?sslmode=require
+      - key: DATABASE_URL
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      # Render genera un secreto aleatorio al crear el servicio.
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGINS
+        value: https://atlas-cinesiterapia.vercel.app
+      - key: FRONTEND_URL
+        value: https://atlas-cinesiterapia.vercel.app
+      # shortcut: sin bucket R2 todavia, la multimedia usa el almacenamiento falso; cambiar a r2 y anadir R2_* al crearlo.
+      - key: MEDIA_PROVIDER
+        value: fake
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false

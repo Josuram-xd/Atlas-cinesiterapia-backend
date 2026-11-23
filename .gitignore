@@ -29,3 +29,14 @@ yarn-error.log*
 
 # Claude Code (local, no compartido)
 .claude/settings.local.json
+
+# Java / Maven
+target/
+*.class
+HELP.md
+*.iml
+.classpath
+.project
+.settings/
+.factorypath
+nbproject/

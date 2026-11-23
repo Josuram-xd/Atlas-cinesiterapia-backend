@@ -1,0 +1,28 @@
+# Artefactos de build locales: la imagen compila dentro del contenedor.
+target/
+**/target/
+
+# Control de versiones, IDE y configuracion local
+.git/
+.github/
+.gitattributes
+.claude/
+.idea/
+.vscode/
+*.iml
+*.log
+
+# Secretos y variables locales: nunca entran en la imagen
+.env
+.env.*
+!.env.example
+
+# Documentacion y archivos solo de desarrollo
+docs/
+docker-compose.yml
+Dockerfile
+.dockerignore
+render.yaml
+README.md
+TASKS.md
+HELP.md
