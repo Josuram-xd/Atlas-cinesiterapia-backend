@@ -84,7 +84,7 @@ class PasswordResetServiceTests {
     @Test
     void solicitarDeUsuarioInactivoNoHaceNada() {
         Usuario ana = ana();
-        ana.setActivo(false);
+        ana.desactivar();
         when(usuarios.findByCorreo("ana@correo.com")).thenReturn(Optional.of(ana));
 
         servicio().solicitar("ana@correo.com");

@@ -69,6 +69,14 @@ class EjercicioTests {
     }
 
     @Test
+    void cannotDeleteTwice() {
+        Ejercicio e = nuevo();
+        e.eliminar(T0);
+        assertThat(e.estaEliminado()).isTrue();
+        assertThatThrownBy(() -> e.eliminar(T1)).isInstanceOf(ApiException.class);
+    }
+
+    @Test
     void archivesOnlyPublishedAndRestoresOnlyArchived() {
         Ejercicio e = nuevo();
         assertThatThrownBy(() -> e.archivar(T0)).isInstanceOf(ApiException.class);

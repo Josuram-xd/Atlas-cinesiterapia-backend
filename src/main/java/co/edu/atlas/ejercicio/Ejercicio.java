@@ -25,6 +25,7 @@ import jakarta.persistence.Version;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import org.hibernate.annotations.SQLRestriction;
 
 /** Ficha de ejercicio. El borrado es blando: las filas con deleted_at nunca se consultan. */
@@ -127,7 +128,7 @@ public class Ejercicio {
     protected Ejercicio() {}
 
     public Ejercicio(String nombre, RegionAnatomica region, CategoriaTerapeutica categoria, Long creadoPor) {
-        this.nombre = nombre.strip();
+        this.nombre = Objects.requireNonNull(nombre, "nombre").strip();
         this.nombreBusqueda = TextoBusqueda.normalizar(nombre);
         this.region = region;
         this.categoria = categoria;
@@ -207,6 +208,7 @@ public class Ejercicio {
     }
 
     public void eliminar(Instant ahora) {
+        exigir(!estaEliminado(), "La ficha ya fue eliminada");
         deletedAt = ahora;
     }
 

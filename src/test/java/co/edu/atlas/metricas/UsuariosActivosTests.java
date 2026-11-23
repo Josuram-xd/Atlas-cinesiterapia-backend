@@ -93,7 +93,7 @@ class UsuariosActivosTests extends ApiIntegrationTest {
     void deactivatedAccountsAreNotCounted() throws Exception {
         Usuario e1 = conRol(RolPerfil.ESTUDIANTE);
         visita(e1, "2026-03-05T10:00:00Z");
-        e1.setActivo(false);
+        e1.desactivar();
         usuarios.saveAndFlush(e1);
 
         mvc.perform(getReq(url("2026-03-01", "2026-03-31"), admin)).andExpect(jsonPath("$.total").value(0));
