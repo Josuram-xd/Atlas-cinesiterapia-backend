@@ -99,9 +99,24 @@ class AuthServiceTests {
     }
 
     @Test
+    void bloqueaLaCuentaTrasDiezFallosAunqueLaClaveSeaCorrecta() {
+        when(usuarios.findByCorreo("ana@correo.com")).thenReturn(Optional.of(ana()));
+        when(encoder.matches("mala", "HASH")).thenReturn(false);
+        AuthService auth = servicio();
+        for (int i = 0; i < 10; i++) {
+            assertThatThrownBy(() -> auth.login(new LoginRequest("ana@correo.com", "mala")))
+                    .isInstanceOfSatisfying(ApiException.class, e -> assertThat(e.getCode()).isEqualTo("CREDENCIALES_INVALIDAS"));
+        }
+
+        assertThatThrownBy(() -> auth.login(new LoginRequest("Ana@Correo.com", "clave")))
+                .isInstanceOfSatisfying(ApiException.class, e -> assertThat(e.getCode()).isEqualTo("DEMASIADOS_INTENTOS"));
+        verify(encoder, never()).matches(eq("clave"), any());
+    }
+
+    @Test
     void loginDeUsuarioInactivoFalla() {
         Usuario ana = ana();
-        ana.setActivo(false);
+        ana.desactivar();
         when(usuarios.findByCorreo("ana@correo.com")).thenReturn(Optional.of(ana));
 
         assertThatThrownBy(() -> servicio().login(new LoginRequest("ana@correo.com", "clave")))
@@ -164,7 +179,7 @@ class AuthServiceTests {
     @Test
     void refrescarDeUsuarioInactivoFallaSinRotar() {
         Usuario ana = ana();
-        ana.setActivo(false);
+        ana.desactivar();
         when(refreshTokens.findByTokenHash(Tokens.hash("viejo")))
                 .thenReturn(Optional.of(refresh("viejo", clock.instant().plusSeconds(3600))));
         when(usuarios.findById(7L)).thenReturn(Optional.of(ana));

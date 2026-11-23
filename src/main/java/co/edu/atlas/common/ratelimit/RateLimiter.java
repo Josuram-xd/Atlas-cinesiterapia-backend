@@ -61,6 +61,18 @@ public class RateLimiter {
         }
     }
 
+    /** Consulta sin registrar intento: true si la clave ya alcanzo el limite en la ventana actual. */
+    public boolean superado(String key) {
+        Deque<Instant> cola = hits.get(key);
+        if (cola == null) {
+            return false;
+        }
+        Instant desde = clock.instant().minus(window);
+        synchronized (cola) {
+            return cola.stream().filter(t -> t.isAfter(desde)).count() >= maxRequests;
+        }
+    }
+
     /** Segundos hasta que el cliente pueda reintentar (minimo 1). */
     public long retryAfterSeconds() {
         return Math.max(1, window.toSeconds());

@@ -90,10 +90,11 @@ public class MediaService {
                 .informacion(media.getClave())
                 .orElseThrow(() -> ApiException.conflict(
                         "MEDIA_NO_SUBIDA", "El archivo todavia no esta en el almacenamiento; sube el archivo e intenta de nuevo"));
-        if (objeto.tamanoBytes() != media.getTamanoBytes()) {
+        boolean otroTipo = objeto.contentType() != null && !objeto.contentType().equalsIgnoreCase(media.getContentType());
+        if (objeto.tamanoBytes() != media.getTamanoBytes() || otroTipo) {
             medias.delete(media);
             borrarObjeto(media.getClave());
-            throw ApiException.conflict("MEDIA_TAMANO_INVALIDO", "El archivo subido no coincide con el tamano declarado");
+            throw ApiException.conflict("MEDIA_TAMANO_INVALIDO", "El archivo subido no coincide con el tamano o tipo declarado");
         }
         media.confirmar();
         return respuesta(media);
