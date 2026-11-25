@@ -43,10 +43,3 @@ Característica: Protocolo clínico del ejercicio
 
 Prompt sugerido (Lovable / v0.dev):
 > Formulario de ficha clínica, sección "Protocolo clínico": campo de texto para objetivo terapéutico, campo de texto (o tres subcampos) para estructuras intervenidas (músculos, articulaciones, ligamentos/tejidos blandos), campo de texto para indicaciones clínicas y campo de texto para precauciones y contraindicaciones, cada uno con su etiqueta clara.
-
-**Mockup**
-
-![Mockup HU-05](./mockups/HU-05.png)
-
-Prompt sugerido (Lovable / v0.dev):
-> Formulario de ficha clínica, sección "Protocolo clínico": campo de texto para objetivo terapéutico, campo de texto (o tres subcampos) para estructuras intervenidas (músculos, articulaciones, ligamentos/tejidos blandos), campo de texto para indicaciones clínicas y campo de texto para precauciones y contraindicaciones, cada uno con su etiqueta clara.
