@@ -43,10 +43,3 @@ Característica: Ejecución del ejercicio
 
 Prompt sugerido (Lovable / v0.dev):
 > Formulario de ficha clínica, sección "Ejecución del ejercicio": campo de texto para posición del paciente, campo de texto para posición del fisioterapeuta (ubicación, tomas, fijaciones), editor de texto enriquecido o lista para la ejecución paso a paso del movimiento, y campo de texto para los comandos verbales al paciente.
-
-**Mockup**
-
-![Mockup HU-06](./mockups/HU-06.png)
-
-Prompt sugerido (Lovable / v0.dev):
-> Formulario de ficha clínica, sección "Ejecución del ejercicio": campo de texto para posición del paciente, campo de texto para posición del fisioterapeuta (ubicación, tomas, fijaciones), editor de texto enriquecido o lista para la ejecución paso a paso del movimiento, y campo de texto para los comandos verbales al paciente.
